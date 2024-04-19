@@ -1,2 +1,2 @@
 # NTNUCSIE-CPII-Final_Project
-My final project og Computer Programming II.
+My final project of Computer Programming II.
