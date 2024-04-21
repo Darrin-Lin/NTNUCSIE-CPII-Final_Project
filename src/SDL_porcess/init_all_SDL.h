@@ -15,11 +15,11 @@ int8_t mySDL_init()
         fprintf(stderr, "SDL_ttf init error! SDL_Error: %s\n", TTF_GetError());
         return -1;
     }
-    int8_t img_flag = IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP | IMG_INIT_JXL | IMG_INIT_AVIF;
-    if (!(IMG_Init(img_flag) & img_flag))
-    {
-        fprintf(stderr, "SDL_img init error! SDL_Error: %s\n", TTF_GetError());
-        return -1;
-    }
+    // int8_t img_flag = IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP | IMG_INIT_JXL | IMG_INIT_AVIF;
+    // if (!(IMG_Init(img_flag) & img_flag))
+    // {
+    //     fprintf(stderr, "SDL_img init error! SDL_Error: %s\n", TTF_GetError());
+    //     return -1;
+    // }
     return 0;
 }

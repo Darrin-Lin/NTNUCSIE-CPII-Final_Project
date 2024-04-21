@@ -51,5 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# Local files
+SDL_test
 test_program
 engine
