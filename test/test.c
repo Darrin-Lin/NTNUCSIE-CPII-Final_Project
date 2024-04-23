@@ -1,28 +1,39 @@
 #include "../src/basic_include.h"
 #include "../src/third_party/toml-c/header/toml-c.h"
 
-int8_t *get_key(int32_t deep, toml_table_t *input_table, toml_table_t **output_table)
+int8_t get_key(int32_t deep,  toml_table_t *input_table, toml_table_t **output_table)
 {
+    if (deep < 0)
+    {
+        *output_table = input_table;
+        return 0;
+    }
     if (input_table)
     {
-        int keylen;
-        const char *key = toml_table_key(input_table, i, &keylen);
-        toml_table_t *each = toml_table_table(dialogue, key);
-        if (each)
+
+        int len = toml_table_len(input_table);
+
+        for (int i = 0; i < len; i++)
         {
-            int le = toml_table_len(each);
-            printf("\tkey #%d: %s\n", i, key);
-            for (int j = 0; j < le; j++)
+            int keylen;
+            const char *key = toml_table_key(input_table, i, &keylen);
+            toml_table_t *each = toml_table_table(input_table, key);
+            if (each)
             {
-                int keyle;
-                const char *each_key = toml_table_key(each, j, &keyle);
-                printf("\t\tkey #%d: %s\n", j, each_key);
+                for(int32_t j = 0; j < deep; j++)
+                {
+                    printf(" ");
+                }
+                printf("key #%d: %s\n", i, key);
+                get_key(deep + 1,  each, output_table);
             }
         }
+        return 0;
     }
     else
     {
-        return -1;
+        *output_table = input_table;
+        return 1;
     }
 }
 
@@ -47,38 +58,18 @@ int main(int argc, char *argv[])
     {
         return -1;
     }
-    toml_value_t name = toml_table_string(conf, "name");
-    printf("name = \"%s\"\n", name.u.s);
-    free(name.u.s); // is ther any function to free the string in toml_value_t?
-    int len_of = toml_table_len(conf);
-    for (int x = 0; x < len_of; x++)
+    // toml_value_t name = toml_table_string(conf, "name");
+    // printf("name = \"%s\"\n", name.u.s);
+    // free(name.u.s); // is ther any function to free the string in toml_value_t?
+    toml_table_t *get_tables;
+    int8_t a = get_key(0, conf, &get_tables);
+    int32_t len = toml_table_len(get_tables);
+    printf("%hhd\n", a);
+    for (int32_t i = 0; i < len; i++)
     {
-        int keyl;
-        const char *k = toml_table_key(conf, x, &keyl);
-        toml_table_t *dialogue = toml_table_table(conf, k);
-        printf("key #%d: %s\n", x, k);
-
-        if (dialogue)
-        {
-            int l = toml_table_len(dialogue);
-            for (int i = 0; i < l; i++)
-            {
-                int keylen;
-                const char *key = toml_table_key(dialogue, i, &keylen);
-                toml_table_t *each = toml_table_table(dialogue, key);
-                if (each)
-                {
-                    int le = toml_table_len(each);
-                    printf("\tkey #%d: %s\n", i, key);
-                    for (int j = 0; j < le; j++)
-                    {
-                        int keyle;
-                        const char *each_key = toml_table_key(each, j, &keyle);
-                        printf("\t\tkey #%d: %s\n", j, each_key);
-                    }
-                }
-            }
-        }
+        int32_t keylen;
+        const char *key = toml_table_key(get_tables, i, &keylen);
+        printf("key #%d: %s\n", i, key);
     }
     toml_free(conf);
 
