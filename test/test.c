@@ -1,4 +1,7 @@
+#define DEBUG 1
 #include "../src/basic_include.h"
+
+#if 0
 #include "../src/third_party/toml-c/header/toml-c.h"
 
 int8_t get_key(int32_t deep,  toml_table_t *input_table, toml_table_t **output_table)
@@ -81,6 +84,43 @@ int main(int argc, char *argv[])
     // 	toml_value_t v = toml_table_string(t, "text");
     // 	printf("dialogue.emotion_implementation.options[%d].text = \"%s\"\n", i, v.u.s);
     // }
+
+    return 0;
+}
+#endif
+#include "../src/third_party/tomlc99/toml.h"
+
+int main(int argc,char *[])
+{
+
+    FILE *fp = fopen("test.toml", "r");
+    if (fp == NULL)
+    {
+        debug_print("Error: cannot open file\n");
+        return -1;
+    }
+    char errbuf[200];
+    toml_table_t *conf = toml_parse_file(fp,errbuf,sizeof(errbuf));
+    fclose(fp);
+    if (conf == NULL)
+    {
+        debug_print("Error: %s\n", errbuf);
+        return -1;
+    }
+    toml_table_t *dialogue = toml_table_at(conf, "dialogue");
+    if(!dialogue)
+    {
+        debug_print("Error: cannot find dialogue\n");
+        free(conf);
+        return -1;
+    }
+    // get key of dialogue
+    char *key ;
+    key= toml_key_in(dialogue,0);
+    printf("key = %s\n",key);
+    free(key);
+    free(dialogue);
+    free(conf);
 
     return 0;
 }

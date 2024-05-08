@@ -4,7 +4,7 @@ CC = gcc
 CFLAGS= -g -Wall -Wextra -fsanitize=address -lubsan -lasan
 LDFLAGS= `sdl2-config --libs --cflags` -ggdb3 -O0 --std=c99 -lSDL2_image -lSDL2_ttf
 
-./test_program: test.o
+./test_program: test.o ../src/third_party/tomlc99/toml.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 ./SDL_test: SDL_test.o
