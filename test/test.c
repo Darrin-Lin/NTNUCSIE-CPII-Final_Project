@@ -1,4 +1,4 @@
-#define DEBUG 1
+#define DEBUG
 #include "../src/basic_include.h"
 
 #if 0
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     }
     // toml_value_t name = toml_table_string(conf, "name");
     // printf("name = \"%s\"\n", name.u.s);
-    // free(name.u.s); // is ther any function to free the string in toml_value_t?
+    // toml_free(name.u.s); // is ther any function to toml_free the string in toml_value_t?
     toml_table_t *get_tables;
     int8_t a = get_key(0, conf, &get_tables);
     int32_t len = toml_table_len(get_tables);
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
         const char *key = toml_table_key(get_tables, i, &keylen);
         printf("key #%d: %s\n", i, key);
     }
-    toml_free(conf);
+    toml_toml_free(conf);
 
     // toml_array_t *arr = toml_table_array(conf, "options");
     // int32_t l = toml_array_len(arr);
@@ -82,45 +82,56 @@ int main(int argc, char *argv[])
     // {
     //     toml_table_t *t = toml_array_table(arr, i);
     // 	toml_value_t v = toml_table_string(t, "text");
-    // 	printf("dialogue.emotion_implementation.options[%d].text = \"%s\"\n", i, v.u.s);
+    // 	printf("event.emotion_implementation.options[%d].text = \"%s\"\n", i, v.u.s);
     // }
 
     return 0;
 }
 #endif
+#include "../src/debug.h"
 #include "../src/third_party/tomlc99/toml.h"
 
-int main(int argc,char *[])
+int main(int argc, char *[])
 {
 
     FILE *fp = fopen("test.toml", "r");
     if (fp == NULL)
     {
-        debug_print("Error: cannot open file\n");
+        debug_print("Error: cannot open file%d", 123);
         return -1;
     }
     char errbuf[200];
-    toml_table_t *conf = toml_parse_file(fp,errbuf,sizeof(errbuf));
+    toml_table_t *conf = toml_parse_file(fp, errbuf, sizeof(errbuf));
     fclose(fp);
     if (conf == NULL)
     {
-        debug_print("Error: %s\n", errbuf);
+        debug_print("%s\n" ,errbuf);
         return -1;
     }
-    toml_table_t *dialogue = toml_table_at(conf, "dialogue");
-    if(!dialogue)
+    toml_table_t *get_tables = toml_table_in(conf, "character");
+    if(!get_tables)
     {
-        debug_print("Error: cannot find dialogue\n");
-        free(conf);
+        debug_print("get_tables is NULL");
         return -1;
     }
-    // get key of dialogue
-    char *key ;
-    key= toml_key_in(dialogue,0);
-    printf("key = %s\n",key);
-    free(key);
-    free(dialogue);
-    free(conf);
-
+    // get key of scene
+    char *scene;
+    scene = toml_key_in(get_tables, 0);
+    if(!scene)
+    {
+        debug_print("scene is NULL");
+        return -1;
+    }
+    printf("scene = %s\n", scene);
+    // get key of event
+    char *key;
+    key = toml_key_in(conf, 4);
+    if(!key)
+    {
+        debug_print("key is NULL");
+        return -1;
+    }
+    printf("key = %s\n", key);
+    toml_free(conf);
     return 0;
 }
