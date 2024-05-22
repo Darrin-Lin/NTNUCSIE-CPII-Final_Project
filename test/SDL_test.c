@@ -35,11 +35,7 @@ int main(int argc, char *argv[])
     TTF_Font *font = TTF_OpenFont("../ttf/NotoSansTC-Medium.ttf", 32);
     if(font==NULL)
     {
-        SDL_DestroyTexture(texture);
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        debug_print("font is NULL");
-        return -1;
+        
     }
     SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
 
@@ -52,8 +48,7 @@ int main(int argc, char *argv[])
         debug_print("message is NULL");
         return -1;
     }
-    SDL_Texture *mTexture;
-    mTexture = SDL_CreateTextureFromSurface(renderer, message);
+    
 
     while (1)
     {
@@ -61,19 +56,17 @@ int main(int argc, char *argv[])
         {
             if (event.type == SDL_QUIT)
             {
-                SDL_DestroyTexture(mTexture);
                 SDL_DestroyTexture(texture);
                 SDL_DestroyRenderer(renderer);
                 SDL_DestroyWindow(window);
                 SDL_DestroyTexture(message);
-                TTF_CloseFont(font);
                 SDL_Quit();
                 return 0;
             }
         }
         // SDL_RenderClear(renderer);
         apply_surface(0, 150, message, window);
-        SDL_RenderCopy(renderer,mTexture,NULL,&rect1);  
+        SDL_RenderCopy(renderer,message,NULL,&rect1);  
         SDL_RenderCopy(renderer, texture, NULL, &rect1);  
         // SDL_RenderCopy(renderer, texture, NULL, &rect);
         SDL_RenderPresent(renderer);
