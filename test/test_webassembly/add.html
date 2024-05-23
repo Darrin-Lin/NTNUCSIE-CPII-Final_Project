@@ -20,7 +20,12 @@
 
       var r = document.getElementById("ret");
       r.innerText = ret
-      Module._test();
+      // Module._test();
+      var ptr = Module._get_string();
+      let str = (new TextDecoder()).decode(new Uint8Array(Module.HEAPU8.buffer, ptr, 15));
+      console.log(str); 
+      document.getElementById("img_png").src = str;
+
     }
     // const memory = new WebAssembly.Memory({ initial: 2 }); // Size is in pages
 
@@ -60,6 +65,7 @@
     <button id="run_button" onclick="run_ws()">=</button>
     <label id="ret"></label>
   </div>
+  <img id="img_png" src="./綠色乖乖.png" alt="綠色乖乖" width="100" height="100">
 </body>
 
 </html>

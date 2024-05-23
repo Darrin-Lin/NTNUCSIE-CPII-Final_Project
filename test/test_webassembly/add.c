@@ -37,3 +37,8 @@ void hello(char *ptr) {
     snprintf(ptr, 100, "Hello World");
 }
 
+EMSCRIPTEN_KEEPALIVE
+char *get_string() {
+    static char str[] = "./test.png";
+    return str;
+}
