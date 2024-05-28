@@ -1,6 +1,4 @@
-#include "../../third_party/tomlc99/toml.h"
-#include "../../debug.h"
-#include "../../basic_include.h"
+#include "toml_get.h"
 
 int8_t get_scence(toml_table_t *scences, const char *scence_id, toml_datum_t *scence_title, toml_datum_t *bg_path)
 {
@@ -49,7 +47,7 @@ int8_t get_dialogue(toml_table_t *dialogues, const char *dialogue_id, toml_datum
     }
     *dialogue_character = toml_string_in(dialogue,"character");
     *dialogue_text = toml_string_in(dialogue,"text");
-    *options = toml_array_in(dialogue,"options");
+    options = toml_array_in(dialogue,"options");
     return 0;
 }
 
