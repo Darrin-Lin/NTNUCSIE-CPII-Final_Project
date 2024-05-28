@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
         return -1;
     }
     SDL_Window *window = SDL_CreateWindow("Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    TTF_Font *font = TTF_OpenFont("./res/fonts/NotoSansTC-Medium.ttf", 24);
     while (1)
     {
         SDL_Event event;
@@ -19,12 +20,14 @@ int main(int argc, char *argv[])
             {
                 debug_print("Quit.\n");
                 SDL_DestroyWindow(window);
+                TTF_CloseFont(font);
                 SDL_Quit();
                 debug_print("Quit.\n");
                 return 0;
             }
         }
-        draw_conversation(window, "./res/img/bg.jpg", "./res/img/avatar.png", "王小明", "test");
+        draw_conversation(window, font, "./res/img/bg.jpg", "./res/img/avatar.png", "王小明", "今天天氣好");
+        
     }
     return 0;
 }
