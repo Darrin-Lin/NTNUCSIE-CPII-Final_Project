@@ -51,14 +51,14 @@ int8_t draw_conversation(SDL_Window *window, char *bg_path, char *avatar_path, c
         error = -1;
     }
     SDL_Color color = {0, 0, 0, 0xFF};
-    dialogue_surface = TTF_RenderText_Solid(font, text, color);
+    dialogue_surface = TTF_RenderUTF8_Solid(font, text, color);
     if (dialogue_surface == NULL)
     {
         debug_print("can't render text.\n");
         goto dialogue_surface_err;
         error = -1;
     }
-    character_name_surface = TTF_RenderText_Solid(font, character_name, color);
+    character_name_surface = TTF_RenderUTF8_Solid(font, character_name, color);
     if (character_name_surface == NULL)
     {
         debug_print("can't create character_name_surface.\n");
@@ -105,6 +105,20 @@ int8_t draw_conversation(SDL_Window *window, char *bg_path, char *avatar_path, c
     SDL_RenderCopy(renderer,character_name_texture , NULL, &character_name_rect);
     SDL_RenderPresent(renderer);
 // return 0;
+// if(!error)
+// {
+//     SDL_FreeSurface(bg);
+//     SDL_FreeSurface(avatar);
+//     SDL_FreeSurface(dialogue_surface);
+//     SDL_FreeSurface(character_name_surface);
+//     TTF_CloseFont(font);
+//     SDL_DestroyTexture(bg_texture);
+//     SDL_DestroyTexture(avatar_texture);
+//     SDL_DestroyTexture(dialogue_texture);
+//     SDL_DestroyTexture(character_name_texture);
+//     SDL_DestroyRenderer(renderer);
+//     return 0;
+// }
 SDL_DestroyTexture(character_name_texture);
 character_name_texture = NULL;
 character_name_texture_err:
