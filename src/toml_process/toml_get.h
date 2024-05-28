@@ -1,6 +1,6 @@
-#include "../../third_party/tomlc99/toml.h"
-#include "../../debug.h"
-#include "../../basic_include.h"
+#include "../third_party/tomlc99/toml.h"
+#include "../debug.h"
+#include "../basic_include.h"
 
 #pragma once
 
