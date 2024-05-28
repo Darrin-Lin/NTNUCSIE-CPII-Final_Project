@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html charset="utf-8">
+
+<head>
+    <title>Socket example</title>
+    <!-- <script src="socket.js"></script> -->
+    <script>
+        function send_to_socket(port, data) {
+            console.log("Sending data to socket");
+            send_data(port, data);
+        }
+        function send_data(port, data) {
+            var ws = new WebSocket("ws://localhost:" + port);
+            ws.onopen = function () {
+                console.log("Connection opened");
+                ws.send(data);
+            };
+            ws.onmessage = function (evt) {
+                console.log("Received: " + evt.data);
+            };
+            ws.onclose = function () {
+                console.log("Connection closed");
+            };
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Socket example</h1>
+    <button onclick="send_to_socket(8080,123)">Send data to socket</button>
+</body>
+
+</html>
