@@ -69,7 +69,7 @@ int8_t draw_dialogue(SDL_Renderer *renderer,TTF_Font *font, char *text)
         return -1;
     }
     SDL_Color color = TEXT_COLOR;
-    dialogue_surface = TTF_RenderUTF8_Solid(font, text, color);
+    dialogue_surface = TTF_RenderUTF8_Blended_Wrapped(font, text, color, (WINDOW_WIDTH - AVATAR_WIDTH - 10));
     if (dialogue_surface == NULL)
     {
         debug_print("can't render text.\n");
