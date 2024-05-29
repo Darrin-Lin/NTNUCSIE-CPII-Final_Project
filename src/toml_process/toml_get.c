@@ -14,6 +14,10 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
         debug_print("Error status.\n");
         return -1;
         break;
+    case STATUS_START:
+        *stat = STATUS_START;
+        *next_stat = STATUS_EVENT;
+        break;
     case STATUS_EVENT:
         toml_table_t *events = toml_table_in(novel, "event");
         if (!events)
@@ -24,27 +28,31 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
         tmp_datum = toml_string_in(toml_table_in(events, event_id), "scene");
         if (tmp_datum.ok)
         {
-            strncpy(scene_id, tmp_datum.u.s, sizeof(scene_id));
+            strncpy(scene_id, tmp_datum.u.s, 1024);
             *stat = STATUS_EVENT;
             *next_stat = STATUS_SCENE;
             free(tmp_datum.u.s);
+            tmp_datum.u.s = NULL;
+            tmp_datum.ok = 0;
         }
         else
         {
             debug_print("No scene.\n");
-            toml_free(events);
+            // toml_free(events);
             return -1;
         }
         tmp_datum = toml_string_in(toml_table_in(events, event_id), "dialogue");
         if (tmp_datum.ok)
         {
-            strncpy(dialogue_id, tmp_datum.u.s, sizeof(dialogue_id));
+            strncpy(dialogue_id, tmp_datum.u.s, 1024);
             free(tmp_datum.u.s);
+            tmp_datum.u.s = NULL;
+            tmp_datum.ok = 0;
         }
         else
         {
             debug_print("No dialogue.\n");
-            toml_free(events);
+            // toml_free(events);
             return -1;
         }
         break;
@@ -58,12 +66,16 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
         get_scene(scenes, scene_id, &tmp_datum, &tmp_datum1);
         if (tmp_datum.ok && tmp_datum1.ok)
         {
-            strncpy(scene_name, tmp_datum.u.s, sizeof(scene_name));
-            strncpy(background_path, tmp_datum1.u.s, sizeof(background_path));
+            strncpy(scene_name, tmp_datum.u.s, 1024);
+            strncpy(background_path, tmp_datum1.u.s, 1024);
             *stat = STATUS_SCENE;
             *next_stat = STATUS_DIALOGUE;
             free(tmp_datum.u.s);
             free(tmp_datum1.u.s);
+            tmp_datum1.u.s = NULL;
+            tmp_datum.u.s = NULL;
+            tmp_datum1.ok = 0;
+            tmp_datum.ok = 0;
         }
         else
         {
@@ -74,6 +86,8 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
             else
             {
                 free(tmp_datum.u.s);
+                tmp_datum.u.s = NULL;
+                tmp_datum.ok = 0;
             }
             if (!tmp_datum1.ok)
             {
@@ -82,12 +96,14 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
             else
             {
                 free(tmp_datum1.u.s);
+                tmp_datum1.u.s = NULL;
+                tmp_datum1.ok = 0;
             }
             debug_print("No scene.\n");
-            toml_free(scenes);
+            // toml_free(scenes);
             return -1;
         }
-        toml_free(scenes);
+        // toml_free(scenes);
         break;
     case STATUS_DIALOGUE:
         toml_table_t *dialogues = toml_table_in(novel, "dialogue");
@@ -99,22 +115,32 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
         get_dialogue(dialogues, dialogue_id, &tmp_datum, &tmp_datum1, NULL);
         if (tmp_datum.ok && tmp_datum1.ok)
         {
-            strncpy(character_id, tmp_datum.u.s, sizeof(character_id));
-            strncpy(dialogue_text, tmp_datum1.u.s, sizeof(dialogue_text));
+            strncpy(character_id, tmp_datum.u.s, 1024);
+            strncpy(dialogue_text, tmp_datum1.u.s, 1024);
+            free(tmp_datum.u.s);
+            free(tmp_datum1.u.s);
+            tmp_datum1.u.s = NULL;
+            tmp_datum.u.s = NULL;
+            tmp_datum1.ok = 0;
+            tmp_datum.ok = 0;
             toml_table_t *characters = toml_table_in(novel, "character");
             if (!characters)
             {
                 debug_print("No character.\n");
-                toml_free(dialogues);
+                // toml_free(dialogues);
                 return -1;
             }
             get_character(characters, character_id, &tmp_datum, &tmp_datum1, NULL);
             if (tmp_datum.ok && tmp_datum1.ok)
             {
-                strncpy(character_name, tmp_datum.u.s, sizeof(character_name));
-                strncpy(avatar_path, tmp_datum1.u.s, sizeof(avatar_path));
+                strncpy(character_name, tmp_datum.u.s, 1024);
+                strncpy(avatar_path, tmp_datum1.u.s, 1024);
                 free(tmp_datum.u.s);
                 free(tmp_datum1.u.s);
+                tmp_datum1.u.s = NULL;
+                tmp_datum.u.s = NULL;
+                tmp_datum1.ok = 0;
+                tmp_datum.ok = 0;
             }
             else
             {
@@ -125,6 +151,8 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
                 else
                 {
                     free(tmp_datum.u.s);
+                    tmp_datum.u.s = NULL;
+                    tmp_datum.ok = 0;
                 }
                 if (!tmp_datum1.ok)
                 {
@@ -135,13 +163,11 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
                     free(tmp_datum1.u.s);
                 }
                 debug_print("No character.\n");
-                toml_free(characters);
+                // toml_free(characters);
                 return -1;
             }
             *stat = STATUS_DIALOGUE;
             *next_stat = STATUS_DIALOGUE_OPTION;
-            free(tmp_datum.u.s);
-            free(tmp_datum1.u.s);
         }
         else
         {
@@ -152,6 +178,8 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
             else
             {
                 free(tmp_datum.u.s);
+                tmp_datum.u.s = NULL;
+                tmp_datum.ok = 0;
             }
             if (!tmp_datum1.ok)
             {
@@ -162,10 +190,10 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
                 free(tmp_datum1.u.s);
             }
             debug_print("No dialogue.\n");
-            toml_free(dialogues);
+            // toml_free(dialogues);
             return -1;
         }
-        toml_free(dialogues);
+        // toml_free(dialogues);
         break;
     case STATUS_DIALOGUE_OPTION:
         toml_table_t *dialogues_opt = toml_table_in(novel, "dialogue");
@@ -174,45 +202,49 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
             debug_print("No dialogue.\n");
             return -1;
         }
-        get_dialogue(dialogues_opt, dialogue_id, &tmp_datum, &tmp_datum1, options);
+        get_dialogue(dialogues_opt, dialogue_id, NULL, NULL, &options);
         if (options == NULL)
         {
             debug_print("option error.\n");
-            toml_free(dialogues_opt);
+            // toml_free(dialogues_opt);
             return -1;
         }
         *stat = STATUS_DIALOGUE_OPTION;
-        toml_table_t *option_table = toml_array_at(options,0);
-        if(option_table == NULL)
+        toml_table_t *option_table = toml_table_at(options, 0);
+        if (option_table == NULL)
         {
             debug_print("option idx error\n");
-            toml_free(dialogues_opt);
+            // toml_free(dialogues_opt);
             return -1;
         }
-        tmp_datum = toml_string_in( option_table,"next"); 
-        if(tmp_datum.ok)
+        tmp_datum = toml_string_in(option_table, "next");
+        if (tmp_datum.ok)
         {
             *next_stat = STATUS_DIALOGUE;
             free(tmp_datum.u.s);
+            tmp_datum.u.s = NULL;
+            tmp_datum.ok = 0;
         }
         else
         {
-            tmp_datum = toml_string_in(option_table,"event");
-            if(tmp_datum.ok)
+            tmp_datum = toml_string_in(option_table, "event");
+            if (tmp_datum.ok)
             {
-                *next_stat= STATUS_EVENT;
+                *next_stat = STATUS_EVENT;
                 free(tmp_datum.u.s);
+                tmp_datum.u.s = NULL;
+                tmp_datum.ok = 0;
             }
             else
             {
                 debug_print("no next status\n");
-                toml_free(dialogues_opt);
-                toml_free(option_table);
+                // toml_free(dialogues_opt);
+                // toml_free(option_table);
                 return -1;
             }
         }
-        toml_free(dialogues_opt);
-        toml_free(option_table);
+        // toml_free(dialogues_opt);
+        // toml_free(option_table);
         break;
     case STATU_SETTING:
         // TODO: add setting
@@ -246,8 +278,32 @@ int8_t get_character(toml_table_t *characters, const char *character_id, toml_da
         return -1;
     }
     *character_name = toml_string_in(character, "name");
+    if (character_name->ok == 0)
+    {
+        return -1;
+    }
     *character_avatar_path = toml_string_in(character, "avatar");
-    *character_tachie_path = toml_string_in(character, "tachie");
+    if (character_avatar_path->ok == 0)
+    {
+        free(character_name->u.s);
+        character_name->u.s = NULL;
+        character_name->ok = 0;
+        return -1;
+    }
+    if (character_tachie_path != NULL)
+    {
+        *character_tachie_path = toml_string_in(character, "tachie");
+        if (character_tachie_path->ok == 0)
+        {
+            free(character_name->u.s);
+            character_name->u.s = NULL;
+            character_name->ok = 0;
+            free(character_avatar_path->u.s);
+            character_avatar_path->u.s = NULL;
+            character_avatar_path->ok = 0;
+            return -1;
+        }
+    }
     return 0;
 }
 int8_t get_event(toml_table_t *events, const char *event_id, toml_datum_t *event_scene, toml_datum_t *event_dialogue)
@@ -262,7 +318,7 @@ int8_t get_event(toml_table_t *events, const char *event_id, toml_datum_t *event
     *event_dialogue = toml_string_in(event, "dialogue");
     return 0;
 }
-int8_t get_dialogue(toml_table_t *dialogues, const char *dialogue_id, toml_datum_t *dialogue_character, toml_datum_t *dialogue_text, toml_array_t *options)
+int8_t get_dialogue(toml_table_t *dialogues, const char *dialogue_id, toml_datum_t *dialogue_character, toml_datum_t *dialogue_text, toml_array_t **options)
 {
     toml_table_t *dialogue = toml_table_in(dialogues, dialogue_id);
     if (!dialogue)
@@ -270,8 +326,28 @@ int8_t get_dialogue(toml_table_t *dialogues, const char *dialogue_id, toml_datum
         debug_print("dialogue is NULL");
         return -1;
     }
-    *dialogue_character = toml_string_in(dialogue, "character");
-    *dialogue_text = toml_string_in(dialogue, "text");
-    options = toml_array_in(dialogue, "options");
+    if (dialogue_character != NULL)
+    {
+
+        *dialogue_character = toml_string_in(dialogue, "character");
+        if (dialogue_character->ok == 0)
+        {
+            return -1;
+        }
+    }
+    if (dialogue_text != NULL)
+    {
+
+        *dialogue_text = toml_string_in(dialogue, "text");
+        if (dialogue_text->ok == 0)
+        {
+            return -1;
+        }
+    }
+    if (options == NULL)
+    {
+        return 0;
+    }
+    *options = toml_array_in(dialogue, "options");
     return 0;
 }
