@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     if (save_file == NULL)
     {
         debug_print("No save file.\n");
-        toml_table_t *start = toml_table_in(novel, "start");
+        toml_table_t *start = toml_table_in(novel, "player");
         tmp_datum = toml_string_in(start, "starter");
         if(tmp_datum.ok)
         {
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        draw_conversation(window, font, "./res/img/bg.jpg", "./res/img/avatar.png", "王小明", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+        draw_conversation(window, font, "./res/img/bg.jpg", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
     }
     return 0;
 }
