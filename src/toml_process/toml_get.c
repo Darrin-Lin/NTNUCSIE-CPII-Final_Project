@@ -32,6 +32,7 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
         else
         {
             debug_print("No scene.\n");
+            toml_free(events);
             return -1;
         }
         tmp_datum = toml_string_in(toml_table_in(events, event_id), "dialogue");
@@ -43,6 +44,7 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
         else
         {
             debug_print("No dialogue.\n");
+            toml_free(events);
             return -1;
         }
         break;
@@ -82,8 +84,10 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
                 free(tmp_datum1.u.s);
             }
             debug_print("No scene.\n");
+            toml_free(scenes);
             return -1;
         }
+        toml_free(scenes);
         break;
     case STATUS_DIALOGUE:
         toml_table_t *dialogues = toml_table_in(novel, "dialogue");
@@ -101,6 +105,7 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
             if (!characters)
             {
                 debug_print("No character.\n");
+                toml_free(dialogues);
                 return -1;
             }
             get_character(characters, character_id, &tmp_datum, &tmp_datum1, NULL);
@@ -130,6 +135,7 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
                     free(tmp_datum1.u.s);
                 }
                 debug_print("No character.\n");
+                toml_free(characters);
                 return -1;
             }
             *stat = STATUS_DIALOGUE;
@@ -156,8 +162,10 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
                 free(tmp_datum1.u.s);
             }
             debug_print("No dialogue.\n");
+            toml_free(dialogues);
             return -1;
         }
+        toml_free(dialogues);
         break;
     case STATUS_DIALOGUE_OPTION:
         toml_table_t *dialogues_opt = toml_table_in(novel, "dialogue");
@@ -170,6 +178,7 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
         if (options == NULL)
         {
             debug_print("option error.\n");
+            toml_free(dialogues_opt);
             return -1;
         }
         *stat = STATUS_DIALOGUE_OPTION;
@@ -177,6 +186,7 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
         if(option_table == NULL)
         {
             debug_print("option idx error\n");
+            toml_free(dialogues_opt);
             return -1;
         }
         tmp_datum = toml_string_in( option_table,"next"); 
@@ -196,9 +206,13 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
             else
             {
                 debug_print("no next status\n");
+                toml_free(dialogues_opt);
+                toml_free(option_table);
                 return -1;
             }
         }
+        toml_free(dialogues_opt);
+        toml_free(option_table);
         break;
     case STATU_SETTING:
         // TODO: add setting

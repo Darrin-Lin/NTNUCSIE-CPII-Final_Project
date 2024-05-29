@@ -94,6 +94,7 @@ int main(int argc, char *argv[])
             return -1;
         }
         fclose(save_file);
+        toml_free(save);
     }
 
     // show
@@ -120,6 +121,7 @@ int main(int argc, char *argv[])
                     TTF_CloseFont(font);
                     SDL_Quit();
                     debug_print("Quit.\n");
+                    toml_free(novel);
                     return 0;
                 }
             }
