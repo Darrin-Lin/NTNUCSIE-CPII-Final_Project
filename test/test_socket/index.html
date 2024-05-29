@@ -5,15 +5,9 @@
     <title>Socket example</title>
     <!-- <script src="socket.js"></script> -->
     <script>
-        function send_to_socket(port, data) {
-            console.log("Sending data to socket");
-            send_data(port, data);
-        }
-        function send_data(port, data) {
-            var ws = new WebSocket("ws://localhost:" + port);
+            var ws = new WebSocket("ws://localhost:" + 8080);
             ws.onopen = function () {
                 console.log("Connection opened");
-                ws.send(data);
             };
             ws.onmessage = function (evt) {
                 console.log("Received: " + evt.data);
@@ -21,6 +15,17 @@
             ws.onclose = function () {
                 console.log("Connection closed");
             };
+
+            async function send(data) {
+                const res = await fetch("./action?data=" + data);
+            }
+
+        function send_to_socket(port, data) {
+            console.log("Sending data to socket");
+            send_data(port, data);
+        }
+        function send_data(port, data) {
+                ws.send(data);
         }
     </script>
 </head>
