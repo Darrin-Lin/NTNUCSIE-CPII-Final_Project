@@ -18,7 +18,8 @@ int main(int argc, char *argv[])
     char character_id[1024] = {0};
     char dialogue_id[1024] = {0};
     toml_array_t *options = NULL;
-    int8_t option_num = 0;
+    char option_text[5][1024] = {0};
+    int32_t option_num = 0;
     toml_datum_t tmp_datum;
     // set status
     enum status stat = 0;
@@ -162,11 +163,31 @@ int main(int argc, char *argv[])
                 }
             }
         }
+
+        // create renderer
+        SDL_Renderer *renderer = NULL;
+
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        if (renderer == NULL)
+        {
+            debug_print("can't create renderer.\n");
+            return -1;
+        }
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+        // draw
         if (stat == STATUS_DIALOGUE && wait_key == 0)
         {
-            draw_conversation(window, font, "./res/img/bg.jpg", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+            draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
             wait_key = 1;
         }
+        draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+
+        char test[5][1024] = {"1", "2", "3", "4", "5"};
+        draw_options(renderer, font, test, 5, 0);
+        // present
+        SDL_RenderPresent(renderer);
+        SDL_DestroyRenderer(renderer);
     }
     return 0;
 }

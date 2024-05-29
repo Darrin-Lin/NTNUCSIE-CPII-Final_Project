@@ -1,26 +1,82 @@
 
 #include "window_process.h"
 
-int8_t draw_conversation(SDL_Window *window,TTF_Font *font , char *bg_path, char *avatar_path, char *character_name, char *text)
+int8_t draw_conversation(SDL_Renderer *renderer, TTF_Font *font, char *bg_path, char *avatar_path, char *character_name, char *text)
 {
-    SDL_Renderer *renderer = NULL;
-    if (window == NULL || bg_path == NULL || avatar_path == NULL || character_name == NULL || text == NULL || font == NULL)
+    if (renderer == NULL || bg_path == NULL || avatar_path == NULL || character_name == NULL || text == NULL || font == NULL)
     {
         return -1;
     }
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (renderer == NULL)
-    {
-        debug_print("can't create renderer.\n");
-        return -1;
-    }
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     draw_background(renderer, bg_path);
     draw_avatar(renderer, font, avatar_path, character_name);
-    draw_dialogue(renderer,font, text);
-    SDL_RenderPresent(renderer);
-    SDL_DestroyRenderer(renderer);
-    
+    draw_dialogue(renderer, font, text);
+    return 0;
+}
+int8_t draw_options(SDL_Renderer *renderer, TTF_Font *font, char option_text[5][1024], int32_t option_num, int32_t option_select)
+{
+    if (renderer == NULL || font == NULL || option_text == NULL || option_num == 0)
+    {
+        return -1;
+    }
+    if (option_num > 5)
+    {
+        debug_print("option_num is too large.\n");
+        return -1;
+    }
+    if (option_select >= option_num)
+    {
+        debug_print("option_selec is too large.\n");
+        return -1;
+    }
+    if (option_select < 0)
+    {
+        debug_print("option_selec is too small.\n");
+        return -1;
+    }
+
+    for (int32_t i = 0; i < option_num; i++)
+    {
+        SDL_Surface *option_surface = NULL;
+        SDL_Texture *option_texture = NULL;
+        SDL_Rect option_rect = {WINDOW_WIDTH / 2 - BUTTON_WIDTH / 2, (2 * i + 1) * BUTTON_HEIGHT, BUTTON_WIDTH, BUTTON_HEIGHT};
+        SDL_Color color = TEXT_COLOR;
+        option_surface = TTF_RenderUTF8_Solid(font, option_text[i], color);
+        if (option_surface == NULL)
+        {
+            debug_print("can't create option_surface.\n");
+            return -1;
+        }
+        option_texture = SDL_CreateTextureFromSurface(renderer, option_surface);
+        if (option_texture == NULL)
+        {
+            debug_print("can't create option_texture.\n");
+            SDL_FreeSurface(option_surface);
+            return -1;
+        }
+        SDL_Color button_color = BUTTON_COLOR;
+        if (i == option_select)
+        {
+            button_color.r = BUTTON_SELECT_COLOR_RED;
+            button_color.g = BUTTON_SELECT_COLOR_GREEN;
+            button_color.b = BUTTON_SELECT_COLOR_BLUE;
+            button_color.a = BUTTON_SELECT_COLOR_ALPHA;
+        }
+        SDL_SetRenderDrawColor(renderer, button_color.r, button_color.g, button_color.b, button_color.a);
+        SDL_RenderFillRect(renderer, &option_rect);
+        option_rect.w = option_surface->w;
+        option_rect.h = option_surface->h;
+        option_rect.x = WINDOW_WIDTH / 2 - option_surface->w / 2;
+        SDL_RenderCopy(renderer, option_texture, NULL, &option_rect);
+        SDL_DestroyTexture(option_texture);
+        option_texture = NULL;
+        SDL_FreeSurface(option_surface);
+        option_surface = NULL;
+        
+        if (option_texture != NULL || option_surface != NULL)
+        {
+            debug_print("error:%d,%d,%d\n", option_texture, option_surface);
+        }
+    }
     return 0;
 }
 
@@ -59,7 +115,7 @@ int8_t draw_background(SDL_Renderer *renderer, char *bg_path)
     return 0;
 }
 
-int8_t draw_dialogue(SDL_Renderer *renderer,TTF_Font *font, char *text)
+int8_t draw_dialogue(SDL_Renderer *renderer, TTF_Font *font, char *text)
 {
     SDL_Surface *dialogue_surface = NULL;
     SDL_Texture *dialogue_texture = NULL;
@@ -92,14 +148,14 @@ int8_t draw_dialogue(SDL_Renderer *renderer,TTF_Font *font, char *text)
     dialogue_texture = NULL;
     SDL_FreeSurface(dialogue_surface);
     dialogue_surface = NULL;
-    if (dialogue_texture != NULL || dialogue_surface != NULL )
+    if (dialogue_texture != NULL || dialogue_surface != NULL)
     {
         debug_print("error:%d,%d,%d\n", dialogue_texture, dialogue_surface);
     }
     return 0;
 }
 
-int8_t draw_avatar(SDL_Renderer *renderer,TTF_Font *font ,char *avatar_path, char *character_name)
+int8_t draw_avatar(SDL_Renderer *renderer, TTF_Font *font, char *avatar_path, char *character_name)
 {
     SDL_Surface *avatar = NULL;
     SDL_Surface *character_name_surface = NULL;
@@ -107,7 +163,7 @@ int8_t draw_avatar(SDL_Renderer *renderer,TTF_Font *font ,char *avatar_path, cha
     SDL_Texture *character_name_texture = NULL;
     SDL_Rect avatar_rect = {0, WINDOW_HEIGHT - AVATAR_HEIGHT - CHARACTER_NAME_BG_HEIGHT, AVATAR_WIDTH, AVATAR_HEIGHT};
     SDL_Rect character_name_bg_rect = {0, WINDOW_HEIGHT - CHARACTER_NAME_BG_HEIGHT, AVATAR_WIDTH, CHARACTER_NAME_BG_HEIGHT};
-    if (renderer == NULL || avatar_path == NULL || character_name == NULL|| font == NULL)
+    if (renderer == NULL || avatar_path == NULL || character_name == NULL || font == NULL)
     {
         return -1;
     }
@@ -155,6 +211,9 @@ int8_t draw_avatar(SDL_Renderer *renderer,TTF_Font *font ,char *avatar_path, cha
     SDL_SetRenderDrawColor(renderer, 230, 127, 80, 0xFF);
     SDL_RenderFillRect(renderer, &avatar_rect);
     SDL_RenderCopy(renderer, avatar_texture, NULL, &avatar_rect);
+    character_name_bg_rect.w = character_name_surface->w;
+    character_name_bg_rect.h = character_name_surface->h;
+    character_name_bg_rect.x = AVATAR_WIDTH/2 - character_name_surface->w/2;
     SDL_RenderCopy(renderer, character_name_texture, NULL, &character_name_bg_rect);
     SDL_FreeSurface(avatar);
     SDL_FreeSurface(character_name_surface);
