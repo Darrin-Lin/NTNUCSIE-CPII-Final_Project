@@ -1,3 +1,6 @@
 [submodule "src/third_party/tomlc99"]
 	path = src/third_party/tomlc99
 	url = https://github.com/cktan/tomlc99.git
+[submodule "src/third_party/cJSON"]
+	path = src/third_party/cJSON
+	url = https://github.com/DaveGamble/cJSON.git
