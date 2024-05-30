@@ -1,13 +1,14 @@
 #include "toml_get.h"
 
-int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_stat, char background_path[1024], char avatar_path[1024], char scene_name[1024], char character_name[1024], char dialogue_text[1024], char event_id[1024], char scene_id[1024], char character_id[1024], char dialogue_id[1024], toml_array_t *options, int32_t option_choose)
+int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_stat, char background_path[1024], char avatar_path[1024],char tachie_path[1024], char scene_name[1024], char character_name[1024], char dialogue_text[1024], char event_id[1024], char scene_id[1024], char character_id[1024], char dialogue_id[1024], toml_array_t *options, int32_t option_choose)
 {
-    if (stat == NULL || next_stat == NULL || background_path == NULL || avatar_path == NULL || scene_name == NULL || character_name == NULL || dialogue_text == NULL || event_id == NULL || scene_id == NULL || character_id == NULL || dialogue_id == NULL)
+    if (stat == NULL || next_stat == NULL || background_path == NULL || avatar_path == NULL || tachie_path == NULL || scene_name == NULL || character_name == NULL || dialogue_text == NULL || event_id == NULL || scene_id == NULL || character_id == NULL || dialogue_id == NULL)
     {
         return -1;
     }
     toml_datum_t tmp_datum;
     toml_datum_t tmp_datum1;
+    toml_datum_t tmp_datum2;
     switch (*next_stat)
     {
     case STATUS_ERROR:
@@ -130,17 +131,21 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
                 // toml_free(dialogues);
                 return -1;
             }
-            get_character(characters, character_id, &tmp_datum, &tmp_datum1, NULL);
-            if (tmp_datum.ok && tmp_datum1.ok)
+            get_character(characters, character_id, &tmp_datum, &tmp_datum1, &tmp_datum2);
+            if (tmp_datum.ok && tmp_datum1.ok && tmp_datum2.ok)
             {
                 strncpy(character_name, tmp_datum.u.s, 1024);
                 strncpy(avatar_path, tmp_datum1.u.s, 1024);
+                strncpy(tachie_path, tmp_datum2.u.s, 1024);
                 free(tmp_datum.u.s);
                 free(tmp_datum1.u.s);
+                free(tmp_datum2.u.s);
                 tmp_datum1.u.s = NULL;
                 tmp_datum.u.s = NULL;
+                tmp_datum2.u.s = NULL;
                 tmp_datum1.ok = 0;
                 tmp_datum.ok = 0;
+                tmp_datum2.ok = 0;
             }
             else
             {
@@ -161,6 +166,18 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
                 else
                 {
                     free(tmp_datum1.u.s);
+                    tmp_datum1.u.s = NULL;
+                    tmp_datum1.ok = 0;
+                }
+                if (!tmp_datum2.ok)
+                {
+                    debug_print("No tachie path.\n");
+                }
+                else
+                {
+                    free(tmp_datum2.u.s);
+                    tmp_datum2.u.s = NULL;
+                    tmp_datum2.ok = 0;
                 }
                 debug_print("No character.\n");
                 // toml_free(characters);

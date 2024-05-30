@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
     debug_print("DEBUG MODE ON\n");
     char background_path[1024] = {0};
     char avatar_path[1024] = {0};
+    char tachie_path[1024] = {0};
     char scene_name[1024] = {0};
     char character_name[1024] = {0};
     char dialogue_text[1024] = {0};
@@ -141,7 +142,7 @@ int main(int argc, char *argv[])
                 {
                     if (wait_key)
                     {
-                        if (change_status(novel, &stat, &next_stat, background_path, avatar_path, scene_name, character_name, dialogue_text, event_id, scene_id, character_id, dialogue_id, options, option_num) == -1)
+                        if (change_status(novel, &stat, &next_stat, background_path, avatar_path,tachie_path, scene_name, character_name, dialogue_text, event_id, scene_id, character_id, dialogue_id, options, option_num) == -1)
                         {
                             debug_print("Error change status %d\n", stat);
                             debug_print("Quit.\n");
@@ -186,10 +187,10 @@ int main(int argc, char *argv[])
         // draw
         if (stat == STATUS_DIALOGUE && wait_key == 0)
         {
-            draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+            draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png","./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
             wait_key = 1;
         }
-        // draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+            draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png","./res/img/avatar.png", "王一二三四五六", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
 
         // char test[5][1024] = {"1", "2", "3", "4", "5"};
         // draw_options(renderer, font, test, 5, 0);

@@ -1,13 +1,14 @@
 
 #include "window_process.h"
 
-int8_t draw_conversation(SDL_Renderer *renderer, TTF_Font *font, char *bg_path, char *avatar_path, char *character_name, char *text)
+int8_t draw_conversation(SDL_Renderer *renderer, TTF_Font *font, char *bg_path, char *avatar_path,char *tachie_path, char *character_name, char *text)
 {
-    if (renderer == NULL || bg_path == NULL || avatar_path == NULL || character_name == NULL || text == NULL || font == NULL)
+    if (renderer == NULL || bg_path == NULL || avatar_path == NULL || tachie_path == NULL || character_name == NULL || text == NULL)
     {
         return -1;
     }
     draw_background(renderer, bg_path);
+    draw_tachie(renderer,tachie_path);
     draw_avatar(renderer, font, avatar_path, character_name);
     draw_dialogue(renderer, font, text);
     return 0;
@@ -255,14 +256,50 @@ int8_t draw_avatar(SDL_Renderer *renderer, TTF_Font *font, char *avatar_path, ch
     SDL_SetRenderDrawColor(renderer, 230, 127, 80, 0xFF);
     SDL_RenderFillRect(renderer, &avatar_rect);
     SDL_RenderCopy(renderer, avatar_texture, NULL, &avatar_rect);
-    character_name_bg_rect.w = character_name_surface->w > AVATAR_WIDTH ? character_name_surface->w : AVATAR_WIDTH;
+    character_name_bg_rect.w = character_name_surface->w < AVATAR_WIDTH ? character_name_surface->w : AVATAR_WIDTH;
     character_name_bg_rect.h = character_name_surface->h;
-    character_name_bg_rect.x = AVATAR_WIDTH / 2 - character_name_surface->w / 2;
+    character_name_bg_rect.x = AVATAR_WIDTH / 2 - character_name_bg_rect.w / 2;
     character_name_bg_rect.y = WINDOW_HEIGHT - CHARACTER_NAME_BG_HEIGHT;
     SDL_RenderCopy(renderer, character_name_texture, NULL, &character_name_bg_rect);
     SDL_FreeSurface(avatar);
     SDL_FreeSurface(character_name_surface);
     SDL_DestroyTexture(avatar_texture);
     SDL_DestroyTexture(character_name_texture);
+    return 0;
+}
+
+int8_t draw_tachie(SDL_Renderer *renderer,char *tachie_path)
+{
+    SDL_Surface *tachie = NULL;
+    SDL_Texture *tachie_texture = NULL;
+    if (renderer == NULL || tachie_path == NULL)
+    {
+        return -1;
+    }
+    tachie = IMG_Load(tachie_path);
+    if (tachie == NULL)
+    {
+        debug_print("can't find tachie.\n");
+        return -1;
+    }
+    tachie_texture = SDL_CreateTextureFromSurface(renderer, tachie);
+    if (tachie_texture == NULL)
+    {
+        debug_print("can't create tachie_texture.\n");
+        SDL_FreeSurface(tachie);
+        tachie = NULL;
+        return -1;
+    }
+    double scale = (double)TACHIE_WIDTH / tachie->w;
+    SDL_Rect tachie_rect = {WINDOW_WIDTH/2 - TACHIE_WIDTH/2, WINDOW_HEIGHT - tachie->h * scale, TACHIE_WIDTH, tachie->h * scale};
+    SDL_RenderCopy(renderer, tachie_texture, NULL, &tachie_rect);
+    SDL_DestroyTexture(tachie_texture);
+    tachie_texture = NULL;
+    SDL_FreeSurface(tachie);
+    tachie = NULL;
+    if (tachie_texture != NULL || tachie != NULL)
+    {
+        debug_print("error:%d,%d\n", tachie_texture, tachie);
+    }
     return 0;
 }
