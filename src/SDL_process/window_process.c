@@ -1,14 +1,14 @@
 
 #include "window_process.h"
 
-int8_t draw_conversation(SDL_Renderer *renderer, TTF_Font *font, char *bg_path, char *avatar_path,char *tachie_path, char *character_name, char *text)
+int8_t draw_conversation(SDL_Renderer *renderer, TTF_Font *font, char *bg_path, char *avatar_path, char *tachie_path, char *character_name, char *text)
 {
     if (renderer == NULL || bg_path == NULL || avatar_path == NULL || tachie_path == NULL || character_name == NULL || text == NULL)
     {
         return -1;
     }
     draw_background(renderer, bg_path);
-    draw_tachie(renderer,tachie_path);
+    draw_tachie(renderer, tachie_path);
     draw_avatar(renderer, font, avatar_path, character_name);
     draw_dialogue(renderer, font, text);
     return 0;
@@ -82,7 +82,43 @@ int8_t draw_options(SDL_Renderer *renderer, TTF_Font *font, char option_text[5][
     return 0;
 }
 
-int8_t draw_title(SDL_Renderer *renderer, TTF_Font *title_font, char *title_text)
+int8_t draw_ending(SDL_Renderer *renderer, TTF_Font *title_font, TTF_Font *font, char *bg_path, char *end_title, char *end_text)
+{
+    if (renderer == NULL || title_font == NULL || font == NULL || bg_path == NULL || end_title == NULL || end_text == NULL)
+    {
+        return -1;
+    }
+    draw_background(renderer, bg_path);
+    SDL_Color wnd_bg = ENDING_BG_COLOR;
+    SDL_SetRenderDrawColor(renderer, wnd_bg.r, wnd_bg.g, wnd_bg.b, wnd_bg.a);
+    SDL_Rect full_bg = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+    SDL_RenderFillRect(renderer, &full_bg);
+    draw_title(renderer, title_font, end_title, TITLE_TOP);
+    SDL_Surface *end_surface = NULL;
+    SDL_Color color = TEXT_COLOR;
+    SDL_Surface *dialogue_surface = TTF_RenderUTF8_Blended_Wrapped(font, end_text, color, (WINDOW_WIDTH - 20));
+    if (dialogue_surface == NULL)
+    {
+        debug_print("can't create dialogue_surface.\n");
+        return -1;
+    }
+    SDL_Texture *dialogue_texture = SDL_CreateTextureFromSurface(renderer, dialogue_surface);
+    if (dialogue_texture == NULL)
+    {
+        debug_print("can't create dialogue_texture.\n");
+        SDL_FreeSurface(dialogue_surface);
+        return -1;
+    }
+    SDL_Rect dialogue_rect = {10, TITLE_HEIGHT*1.5, dialogue_surface->w, dialogue_surface->h};
+    SDL_RenderCopy(renderer, dialogue_texture, NULL, &dialogue_rect);
+    SDL_DestroyTexture(dialogue_texture);
+    dialogue_texture = NULL;
+    SDL_FreeSurface(dialogue_surface);
+    dialogue_surface = NULL;
+    return 0;
+}
+
+int8_t draw_title(SDL_Renderer *renderer, TTF_Font *title_font, char *title_text, enum title_position position)
 {
     if (renderer == NULL || title_font == NULL || title_text == NULL)
     {
@@ -90,7 +126,25 @@ int8_t draw_title(SDL_Renderer *renderer, TTF_Font *title_font, char *title_text
     }
     SDL_Surface *title_surface = NULL;
     SDL_Texture *title_texture = NULL;
-    SDL_Rect title_rect = {0, WINDOW_HEIGHT / 2 - TITLE_HEIGHT / 2, WINDOW_WIDTH, TITLE_HEIGHT};
+    int32_t title_y = 0;
+    if (position == TITLE_TOP)
+    {
+        title_y = TITLE_HEIGHT/2;
+    }
+    else if (position == TITLE_CENTER)
+    {
+        title_y = WINDOW_HEIGHT / 2 - TITLE_HEIGHT / 2;
+    }
+    else if (position == TITLE_BOTTOM)
+    {
+        title_y = WINDOW_HEIGHT - TITLE_HEIGHT;
+    }
+    else 
+    {
+        debug_print("title_position is invalid.\n");
+        return -1;
+    }
+    SDL_Rect title_rect = {0, 0, WINDOW_WIDTH, TITLE_HEIGHT};// just init
     SDL_Color color = TITLE_COLOR;
     title_surface = TTF_RenderUTF8_Solid(title_font, title_text, color);
     if (title_surface == NULL)
@@ -105,14 +159,14 @@ int8_t draw_title(SDL_Renderer *renderer, TTF_Font *title_font, char *title_text
         SDL_FreeSurface(title_surface);
         return -1;
     }
-    SDL_Rect title_bg_rect = {0, WINDOW_HEIGHT / 2 - TITLE_HEIGHT / 2, WINDOW_WIDTH, TITLE_HEIGHT};
+    SDL_Rect title_bg_rect = {0, title_y, WINDOW_WIDTH, TITLE_HEIGHT};
     SDL_Color title_bg_color = TITLE_BG_COLOR;
     SDL_SetRenderDrawColor(renderer, title_bg_color.r, title_bg_color.g, title_bg_color.b, title_bg_color.a);
     SDL_RenderFillRect(renderer, &title_bg_rect);
     title_rect.w = title_surface->w;
     title_rect.h = title_surface->h;
     title_rect.x = WINDOW_WIDTH / 2 - title_surface->w / 2;
-    title_rect.y = WINDOW_HEIGHT / 2 - title_surface->h / 2;
+    title_rect.y = title_y+TITLE_HEIGHT / 2 - title_surface->h / 2;
     SDL_RenderCopy(renderer, title_texture, NULL, &title_rect);
     SDL_DestroyTexture(title_texture);
     title_texture = NULL;
@@ -268,7 +322,7 @@ int8_t draw_avatar(SDL_Renderer *renderer, TTF_Font *font, char *avatar_path, ch
     return 0;
 }
 
-int8_t draw_tachie(SDL_Renderer *renderer,char *tachie_path)
+int8_t draw_tachie(SDL_Renderer *renderer, char *tachie_path)
 {
     SDL_Surface *tachie = NULL;
     SDL_Texture *tachie_texture = NULL;
@@ -291,7 +345,7 @@ int8_t draw_tachie(SDL_Renderer *renderer,char *tachie_path)
         return -1;
     }
     double scale = (double)TACHIE_WIDTH / tachie->w;
-    SDL_Rect tachie_rect = {WINDOW_WIDTH/2 - TACHIE_WIDTH/2, WINDOW_HEIGHT - tachie->h * scale, TACHIE_WIDTH, tachie->h * scale};
+    SDL_Rect tachie_rect = {WINDOW_WIDTH / 2 - TACHIE_WIDTH / 2, WINDOW_HEIGHT - tachie->h * scale, TACHIE_WIDTH, tachie->h * scale};
     SDL_RenderCopy(renderer, tachie_texture, NULL, &tachie_rect);
     SDL_DestroyTexture(tachie_texture);
     tachie_texture = NULL;

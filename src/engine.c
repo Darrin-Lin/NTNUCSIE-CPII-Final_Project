@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
                         else if (change == 1)
                         {
                             debug_print("End.\n");
-                            return 0;
+                            // return 0;
                         }
                         
                         if (stat == STATUS_DIALOGUE_OPTION)
@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
         if (stat == STATUS_SCENE)
         {
             draw_background(renderer, "./res/img/bg.jpg");
-            draw_title(renderer, title_font, scene_name);
+            draw_title(renderer, title_font, scene_name, TITLE_CENTER);
         }
         if (stat == STATUS_DIALOGUE || stat == STATUS_DIALOGUE_OPTION)
         {
@@ -336,6 +336,10 @@ int main(int argc, char *argv[])
                 }
             }
             draw_options(renderer, font, option_text, option_num, option_choose);
+        }
+        if(stat == STATUS_END)
+        {
+            draw_ending(renderer, title_font, font, "./res/img/bg.jpg", scene_name, end_text);
         }
 
         // draw_options(renderer, font, test, 5, 0);
