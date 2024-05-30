@@ -4,6 +4,27 @@
 #include "./SDL_process/init_all_SDL.h"
 #include "debug.h"
 
+SDL_Window *window;
+TTF_Font *font;
+TTF_Font *title_font;
+toml_table_t *novel;
+
+void close_SDL()
+{
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
+void close_TTF()
+{
+    TTF_CloseFont(font);
+    TTF_CloseFont(title_font);
+    TTF_Quit();
+}
+void close_TOML()
+{
+    toml_free(novel);
+}
+
 int main(int argc, char *argv[])
 {
     debug_print("DEBUG MODE ON\n");
@@ -21,6 +42,7 @@ int main(int argc, char *argv[])
     toml_array_t *options = NULL;
     char option_text[5][1024] = {0};
     int32_t option_num = 0;
+    int32_t option_choose = 0;
     toml_datum_t tmp_datum;
     // set status
     enum status stat = 0;
@@ -33,18 +55,18 @@ int main(int argc, char *argv[])
         return -1;
     }
     char errbuf[200] = {0};
-    toml_table_t *novel = toml_parse_file(novel_file, errbuf, sizeof(errbuf));
+    novel = toml_parse_file(novel_file, errbuf, sizeof(errbuf));
     if (novel == NULL)
     {
         debug_print("Error parsing file: %s\n", errbuf);
         return -1;
     }
+    atexit(close_TOML);
     if (errbuf[0] != '\0')
     {
         debug_print("TOML Error: %s\n", errbuf);
         return -1;
     }
-
     // read save file
     // TODO: save file
     // TODO: add object toml or json
@@ -111,14 +133,21 @@ int main(int argc, char *argv[])
         debug_print("No title.\n");
         return -1;
     }
-    SDL_Window *window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-    TTF_Font *font = TTF_OpenFont("./res/fonts/NotoSansTC-Medium.ttf", 24);
+    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    if (window == NULL)
+    {
+        debug_print("Can't create window.\n");
+        return -1;
+    }
+    atexit(close_SDL);
+    font = TTF_OpenFont("./res/fonts/NotoSansTC-Medium.ttf", 24);
     if (font == NULL)
     {
         debug_print("can't open font.\n");
         return -1;
     }
-    TTF_Font *title_font = TTF_OpenFont("./res/fonts/NotoSansTC-Medium.ttf", 48);
+    title_font = TTF_OpenFont("./res/fonts/NotoSansTC-Medium.ttf", 48);
+    atexit(close_TTF);
     // show
     while (1)
     {
@@ -128,12 +157,6 @@ int main(int argc, char *argv[])
             if (event.type == SDL_QUIT)
             {
                 debug_print("Quit.\n");
-                SDL_DestroyWindow(window);
-                TTF_CloseFont(font);
-                TTF_CloseFont(title_font);
-                TTF_Quit();
-                SDL_Quit();
-                toml_free(novel);
                 return 0;
             }
             else if (event.type == SDL_KEYDOWN)
@@ -142,17 +165,20 @@ int main(int argc, char *argv[])
                 {
                     if (wait_key)
                     {
-                        if (change_status(novel, &stat, &next_stat, background_path, avatar_path,tachie_path, scene_name, character_name, dialogue_text, event_id, scene_id, character_id, dialogue_id, options, option_num) == -1)
+                        if (change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, scene_name, character_name, dialogue_text, event_id, scene_id, character_id, dialogue_id, options, option_choose) == -1)
                         {
                             debug_print("Error change status %d\n", stat);
                             debug_print("Quit.\n");
-                            SDL_DestroyWindow(window);
-                            TTF_CloseFont(font);
-                            TTF_CloseFont(title_font);
-                            TTF_Quit();
-                            SDL_Quit();
-                            toml_free(novel);
                             return -1;
+                        }
+                        if (stat == STATUS_DIALOGUE_OPTION)
+                        {
+                            option_num = toml_array_nelem(options);
+                            if (option_num > 5)
+                            {
+                                debug_print("Quit.\n");
+                                return -1;
+                            }
                         }
                         debug_print("Change status: %d\n", stat);
                         debug_print("Next status: %d\n", next_stat);
@@ -168,6 +194,20 @@ int main(int argc, char *argv[])
                         debug_print("Option num: %d\n\n", option_num);
 
                         wait_key = 1;
+                    }
+                }
+                if (event.key.keysym.sym == SDLK_UP)
+                {
+                    debug_print("UP key press.\n") if (stat == STATUS_DIALOGUE_OPTION)
+                    {
+                        option_choose = option_choose == 0 ? option_num - 1 : option_choose - 1;
+                    }
+                }
+                if (event.key.keysym.sym == SDLK_DOWN)
+                {
+                    debug_print("DOWN key press.\n") if (stat == STATUS_DIALOGUE_OPTION)
+                    {
+                        option_choose = option_choose == option_num - 1 ? 0 : option_choose + 1;
                     }
                 }
             }
@@ -187,10 +227,10 @@ int main(int argc, char *argv[])
         // draw
         if (stat == STATUS_DIALOGUE && wait_key == 0)
         {
-            draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png","./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+            draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
             wait_key = 1;
         }
-            draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png","./res/img/avatar.png", "王一二三四五六", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+        draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "./res/img/avatar.png", "王一二三四五六", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
 
         // char test[5][1024] = {"1", "2", "3", "4", "5"};
         // draw_options(renderer, font, test, 5, 0);
