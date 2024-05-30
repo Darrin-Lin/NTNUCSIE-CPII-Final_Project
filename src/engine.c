@@ -112,6 +112,12 @@ int main(int argc, char *argv[])
     }
     SDL_Window *window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
     TTF_Font *font = TTF_OpenFont("./res/fonts/NotoSansTC-Medium.ttf", 24);
+    if (font == NULL)
+    {
+        debug_print("can't open font.\n");
+        return -1;
+    }
+    TTF_Font *title_font = TTF_OpenFont("./res/fonts/NotoSansTC-Medium.ttf", 48);
     // show
     while (1)
     {
@@ -123,6 +129,7 @@ int main(int argc, char *argv[])
                 debug_print("Quit.\n");
                 SDL_DestroyWindow(window);
                 TTF_CloseFont(font);
+                TTF_CloseFont(title_font);
                 TTF_Quit();
                 SDL_Quit();
                 toml_free(novel);
@@ -140,6 +147,7 @@ int main(int argc, char *argv[])
                             debug_print("Quit.\n");
                             SDL_DestroyWindow(window);
                             TTF_CloseFont(font);
+                            TTF_CloseFont(title_font);
                             TTF_Quit();
                             SDL_Quit();
                             toml_free(novel);
@@ -181,10 +189,12 @@ int main(int argc, char *argv[])
             draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
             wait_key = 1;
         }
-        draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+        // draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
 
-        char test[5][1024] = {"1", "2", "3", "4", "5"};
-        draw_options(renderer, font, test, 5, 0);
+        // char test[5][1024] = {"1", "2", "3", "4", "5"};
+        // draw_options(renderer, font, test, 5, 0);
+        // draw_background(renderer, "./res/img/bg.jpg");
+        // draw_title(renderer, title_font, "title");
         // present
         SDL_RenderPresent(renderer);
         SDL_DestroyRenderer(renderer);

@@ -66,16 +66,60 @@ int8_t draw_options(SDL_Renderer *renderer, TTF_Font *font, char option_text[5][
         option_rect.w = option_surface->w;
         option_rect.h = option_surface->h;
         option_rect.x = WINDOW_WIDTH / 2 - option_surface->w / 2;
+        option_rect.y = (2 * i + 1) * BUTTON_HEIGHT + BUTTON_HEIGHT / 2 - option_surface->h / 2;
         SDL_RenderCopy(renderer, option_texture, NULL, &option_rect);
         SDL_DestroyTexture(option_texture);
         option_texture = NULL;
         SDL_FreeSurface(option_surface);
         option_surface = NULL;
-        
+
         if (option_texture != NULL || option_surface != NULL)
         {
             debug_print("error:%d,%d,%d\n", option_texture, option_surface);
         }
+    }
+    return 0;
+}
+
+int8_t draw_title(SDL_Renderer *renderer, TTF_Font *title_font, char *title_text)
+{
+    if (renderer == NULL || title_font == NULL || title_text == NULL)
+    {
+        return -1;
+    }
+    SDL_Surface *title_surface = NULL;
+    SDL_Texture *title_texture = NULL;
+    SDL_Rect title_rect = {0, WINDOW_HEIGHT / 2 - TITLE_HEIGHT / 2, WINDOW_WIDTH, TITLE_HEIGHT};
+    SDL_Color color = TITLE_COLOR;
+    title_surface = TTF_RenderUTF8_Solid(title_font, title_text, color);
+    if (title_surface == NULL)
+    {
+        debug_print("can't create title_surface.\n");
+        return -1;
+    }
+    title_texture = SDL_CreateTextureFromSurface(renderer, title_surface);
+    if (title_texture == NULL)
+    {
+        debug_print("can't create title_texture.\n");
+        SDL_FreeSurface(title_surface);
+        return -1;
+    }
+    SDL_Rect title_bg_rect = {0, WINDOW_HEIGHT / 2 - TITLE_HEIGHT / 2, WINDOW_WIDTH, TITLE_HEIGHT};
+    SDL_Color title_bg_color = TITLE_BG_COLOR;
+    SDL_SetRenderDrawColor(renderer, title_bg_color.r, title_bg_color.g, title_bg_color.b, title_bg_color.a);
+    SDL_RenderFillRect(renderer, &title_bg_rect);
+    title_rect.w = title_surface->w;
+    title_rect.h = title_surface->h;
+    title_rect.x = WINDOW_WIDTH / 2 - title_surface->w / 2;
+    title_rect.y = WINDOW_HEIGHT / 2 - title_surface->h / 2;
+    SDL_RenderCopy(renderer, title_texture, NULL, &title_rect);
+    SDL_DestroyTexture(title_texture);
+    title_texture = NULL;
+    SDL_FreeSurface(title_surface);
+    title_surface = NULL;
+    if (title_texture != NULL || title_surface != NULL)
+    {
+        debug_print("error:%d,%d,%d\n", title_texture, title_surface);
     }
     return 0;
 }
@@ -211,9 +255,10 @@ int8_t draw_avatar(SDL_Renderer *renderer, TTF_Font *font, char *avatar_path, ch
     SDL_SetRenderDrawColor(renderer, 230, 127, 80, 0xFF);
     SDL_RenderFillRect(renderer, &avatar_rect);
     SDL_RenderCopy(renderer, avatar_texture, NULL, &avatar_rect);
-    character_name_bg_rect.w = character_name_surface->w;
+    character_name_bg_rect.w = character_name_surface->w > AVATAR_WIDTH ? character_name_surface->w : AVATAR_WIDTH;
     character_name_bg_rect.h = character_name_surface->h;
-    character_name_bg_rect.x = AVATAR_WIDTH/2 - character_name_surface->w/2;
+    character_name_bg_rect.x = AVATAR_WIDTH / 2 - character_name_surface->w / 2;
+    character_name_bg_rect.y = WINDOW_HEIGHT - CHARACTER_NAME_BG_HEIGHT;
     SDL_RenderCopy(renderer, character_name_texture, NULL, &character_name_bg_rect);
     SDL_FreeSurface(avatar);
     SDL_FreeSurface(character_name_surface);
