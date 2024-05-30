@@ -34,11 +34,14 @@ int main(int argc, char *argv[])
     char scene_name[1024] = {0};
     char character_name[1024] = {0};
     char dialogue_text[1024] = {0};
+    char end_text[4096] = {0};
     // init all id
     char event_id[1024] = {0};
     char scene_id[1024] = {0};
     char character_id[1024] = {0};
     char dialogue_id[1024] = {0};
+    char end_id[1024] = {0};
+
     toml_array_t *options = NULL;
     char option_text[5][1024] = {0};
     int32_t option_num = 0;
@@ -81,6 +84,8 @@ int main(int argc, char *argv[])
             strncpy(event_id, tmp_datum.u.s, sizeof(event_id));
             stat = STATUS_EVENT;
             free(tmp_datum.u.s);
+            tmp_datum.ok = 0;
+            tmp_datum.u.s = NULL;
         }
         else
         {
@@ -107,6 +112,8 @@ int main(int argc, char *argv[])
             strncpy(event_id, tmp_datum.u.s, sizeof(event_id));
             stat = STATUS_EVENT;
             free(tmp_datum.u.s);
+            tmp_datum.ok = 0;
+            tmp_datum.u.s = NULL;
         }
         else
         {
@@ -127,6 +134,8 @@ int main(int argc, char *argv[])
     {
         strncpy(title, tmp_datum.u.s, sizeof(title));
         free(tmp_datum.u.s);
+        tmp_datum.ok = 0;
+        tmp_datum.u.s = NULL;
     }
     else
     {
@@ -165,12 +174,67 @@ int main(int argc, char *argv[])
                 {
                     if (wait_key)
                     {
-                        if (change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, scene_name, character_name, dialogue_text, event_id, scene_id, character_id, dialogue_id, options, option_choose) == -1)
+                        if (stat == STATUS_DIALOGUE_OPTION)
+                        {
+                            option_choose = 0;
+                            option_num = 0;
+                            toml_table_t *options_txt = toml_table_at(options, option_choose);
+                            if (options_txt == NULL)
+                            {
+                                debug_print("No option.\n");
+                                return -1;
+                            }
+                            if (next_stat == STATUS_EVENT)
+                            {
+                                tmp_datum = toml_string_in(options_txt, "event");
+                                if (tmp_datum.ok)
+                                {
+                                    strncpy(event_id, tmp_datum.u.s, sizeof(event_id));
+                                    free(tmp_datum.u.s);
+                                    tmp_datum.ok = 0;
+                                    tmp_datum.u.s = NULL;
+                                }
+                                else
+                                {
+                                    debug_print("No next.\n");
+                                    return -1;
+                                }
+                            }
+                            else if (next_stat == STATUS_DIALOGUE)
+                            {
+                                tmp_datum = toml_string_in(options_txt, "next");
+                                if (tmp_datum.ok)
+                                {
+                                    strncpy(dialogue_id, tmp_datum.u.s, sizeof(dialogue_id));
+                                    free(tmp_datum.u.s);
+                                    tmp_datum.ok = 0;
+                                    tmp_datum.u.s = NULL;
+                                }
+                                else
+                                {
+                                    debug_print("No next.\n");
+                                    return -1;
+                                }
+                            }
+                            else
+                            {
+                                debug_print("No next.\n");
+                                return -1;
+                            }
+                        }
+                        int8_t change = change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, scene_name, character_name, dialogue_text, end_text, event_id, scene_id, character_id, dialogue_id, end_id, &options, option_choose);
+                        if (change == -1)
                         {
                             debug_print("Error change status %d\n", stat);
                             debug_print("Quit.\n");
                             return -1;
                         }
+                        else if (change == 1)
+                        {
+                            debug_print("End.\n");
+                            return 0;
+                        }
+                        
                         if (stat == STATUS_DIALOGUE_OPTION)
                         {
                             option_num = toml_array_nelem(options);
@@ -192,22 +256,27 @@ int main(int argc, char *argv[])
                         debug_print("Character id: %s\n", character_id);
                         debug_print("Dialogue id: %s\n", dialogue_id);
                         debug_print("Option num: %d\n\n", option_num);
+                        debug_print("Option choose: %d\n\n", option_choose);
 
                         wait_key = 1;
                     }
                 }
                 if (event.key.keysym.sym == SDLK_UP)
                 {
-                    debug_print("UP key press.\n") if (stat == STATUS_DIALOGUE_OPTION)
+                    debug_print("UP key press.\n");
+                    if (stat == STATUS_DIALOGUE_OPTION)
                     {
                         option_choose = option_choose == 0 ? option_num - 1 : option_choose - 1;
+                        debug_print("Option choose: %d\n", option_choose);
                     }
                 }
                 if (event.key.keysym.sym == SDLK_DOWN)
                 {
-                    debug_print("DOWN key press.\n") if (stat == STATUS_DIALOGUE_OPTION)
+                    debug_print("DOWN key press.\n");
+                    if (stat == STATUS_DIALOGUE_OPTION)
                     {
                         option_choose = option_choose == option_num - 1 ? 0 : option_choose + 1;
+                        debug_print("Option choose: %d\n", option_choose);
                     }
                 }
             }
@@ -230,9 +299,45 @@ int main(int argc, char *argv[])
             draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
             wait_key = 1;
         }
-        draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "./res/img/avatar.png", "王一二三四五六", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+        // draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "./res/img/avatar.png", "王一二三四五六", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
 
         // char test[5][1024] = {"1", "2", "3", "4", "5"};
+        if (stat == STATUS_SCENE)
+        {
+            draw_background(renderer, "./res/img/bg.jpg");
+            draw_title(renderer, title_font, scene_name);
+        }
+        if (stat == STATUS_DIALOGUE || stat == STATUS_DIALOGUE_OPTION)
+        {
+            draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "./res/img/avatar.png", character_name, dialogue_text);
+        }
+        if (stat == STATUS_DIALOGUE_OPTION)
+        {
+            for (int32_t i = 0; i < option_num; i++)
+            {
+                toml_table_t *options_txt = toml_table_at(options, i);
+                if (options_txt == NULL)
+                {
+                    debug_print("No option.\n");
+                    return -1;
+                }
+                tmp_datum = toml_string_in(options_txt, "text");
+                if (tmp_datum.ok)
+                {
+                    strncpy(option_text[i], tmp_datum.u.s, sizeof(option_text[i]));
+                    free(tmp_datum.u.s);
+                    tmp_datum.ok = 0;
+                    tmp_datum.u.s = NULL;
+                }
+                else
+                {
+                    debug_print("No option.\n");
+                    return -1;
+                }
+            }
+            draw_options(renderer, font, option_text, option_num, option_choose);
+        }
+
         // draw_options(renderer, font, test, 5, 0);
         // draw_background(renderer, "./res/img/bg.jpg");
         // draw_title(renderer, title_font, "title");

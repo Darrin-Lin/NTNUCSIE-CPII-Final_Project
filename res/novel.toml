@@ -69,7 +69,7 @@ dialogue = "ta_intro"
 [dialogue.ta_intro]
 character = "ta"
 text = "你好！來討論期末專題嗎？"
-[dialogue.ta_intro.options]
+[[dialogue.ta_intro.options]]
 text = "是的，我們有一些想法想要詢問。"
 next = "ta_discuss"
 
@@ -125,5 +125,9 @@ text = "謝謝提醒，我們會制定計劃的。"
 next = "finalize_ideas"
 
 [event.project_start]
-scene = "library"
-dialogue = "start_working"
+end = "good_luck"
+
+[end.good_luck]
+title = "Good Luck!"
+background = "assets/end/good_luck.bmp"
+text = "this is lot of text that will be displayed on the screen when the game ends and the player wins the game"

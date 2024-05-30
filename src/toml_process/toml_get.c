@@ -1,8 +1,8 @@
 #include "toml_get.h"
 
-int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_stat, char background_path[1024], char avatar_path[1024],char tachie_path[1024], char scene_name[1024], char character_name[1024], char dialogue_text[1024], char event_id[1024], char scene_id[1024], char character_id[1024], char dialogue_id[1024], toml_array_t *options, int32_t option_choose)
+int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_stat, char background_path[1024], char avatar_path[1024], char tachie_path[1024], char scene_name[1024], char character_name[1024], char dialogue_text[1024], char end_text[4096], char event_id[1024], char scene_id[1024], char character_id[1024], char dialogue_id[1024], char end_id[1024], toml_array_t **options, int32_t option_choose)
 {
-    if (stat == NULL || next_stat == NULL || background_path == NULL || avatar_path == NULL || tachie_path == NULL || scene_name == NULL || character_name == NULL || dialogue_text == NULL || event_id == NULL || scene_id == NULL || character_id == NULL || dialogue_id == NULL)
+    if (stat == NULL || next_stat == NULL || background_path == NULL || avatar_path == NULL || tachie_path == NULL || scene_name == NULL || character_name == NULL || dialogue_text == NULL || end_text == NULL || event_id == NULL || scene_id == NULL || character_id == NULL || dialogue_id == NULL || end_id == NULL || options == NULL)
     {
         return -1;
     }
@@ -35,27 +35,43 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
             free(tmp_datum.u.s);
             tmp_datum.u.s = NULL;
             tmp_datum.ok = 0;
+
+            tmp_datum = toml_string_in(toml_table_in(events, event_id), "dialogue");
+            if (tmp_datum.ok)
+            {
+                strncpy(dialogue_id, tmp_datum.u.s, 1024);
+                free(tmp_datum.u.s);
+                tmp_datum.u.s = NULL;
+                tmp_datum.ok = 0;
+            }
+            else
+            {
+                debug_print("No dialogue.\n");
+                // toml_free(events);
+                return -1;
+            }
         }
         else
         {
-            debug_print("No scene.\n");
-            // toml_free(events);
-            return -1;
+            tmp_datum = toml_string_in(toml_table_in(events, event_id), "end");
+            if (tmp_datum.ok)
+            {
+                *stat = STATUS_EVENT;
+                *next_stat = STATUS_END;
+                strncpy(end_id, tmp_datum.u.s, 1024);
+                free(tmp_datum.u.s);
+                tmp_datum.u.s = NULL;
+                tmp_datum.ok = 0;
+            }
+            else
+            {
+
+                debug_print("No scene or end.\n");
+                // toml_free(events);
+                return -1;
+            }
         }
-        tmp_datum = toml_string_in(toml_table_in(events, event_id), "dialogue");
-        if (tmp_datum.ok)
-        {
-            strncpy(dialogue_id, tmp_datum.u.s, 1024);
-            free(tmp_datum.u.s);
-            tmp_datum.u.s = NULL;
-            tmp_datum.ok = 0;
-        }
-        else
-        {
-            debug_print("No dialogue.\n");
-            // toml_free(events);
-            return -1;
-        }
+
         break;
     case STATUS_SCENE:
         toml_table_t *scenes = toml_table_in(novel, "scene");
@@ -219,15 +235,15 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
             debug_print("No dialogue.\n");
             return -1;
         }
-        get_dialogue(dialogues_opt, dialogue_id, NULL, NULL, &options);
-        if (options == NULL)
+        get_dialogue(dialogues_opt, dialogue_id, NULL, NULL, options);
+        if (*options == NULL)
         {
             debug_print("option error.\n");
             // toml_free(dialogues_opt);
             return -1;
         }
         *stat = STATUS_DIALOGUE_OPTION;
-        toml_table_t *option_table = toml_table_at(options, 0);
+        toml_table_t *option_table = toml_table_at(*options, 0);
         if (option_table == NULL)
         {
             debug_print("option idx error\n");
@@ -265,6 +281,22 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
         break;
     case STATU_SETTING:
         // TODO: add setting
+        break;
+    case STATUS_END:
+        debug_print("End of the novel.\n");
+        *stat = STATUS_END;
+        *next_stat = STATUS_END;
+        toml_table_t *ends = toml_table_in(novel, "end");
+        if (!ends)
+        {
+            debug_print("No end.\n");
+            return -1;
+        }
+        if (get_ending(ends, end_id, scene_name, end_text, background_path) == -1)
+        {
+            return -1;
+        }
+        return 1;
         break;
     default:
         debug_print("Error status.\n");
@@ -366,5 +398,68 @@ int8_t get_dialogue(toml_table_t *dialogues, const char *dialogue_id, toml_datum
         return 0;
     }
     *options = toml_array_in(dialogue, "options");
+    return 0;
+}
+
+int8_t get_ending(toml_table_t *ends, const char *end_id, char end_title[1024], char end_text[4096], char end_bg_path[1024])
+{
+    toml_table_t *ending = toml_table_in(ends, end_id);
+    if (!ending)
+    {
+        debug_print("ending is NULL");
+        return -1;
+    }
+    toml_datum_t title = toml_string_in(ending, "title");
+    toml_datum_t txt = toml_string_in(ending, "text");
+    toml_datum_t end_bg = toml_string_in(ending, "background");
+    if (title.ok && txt.ok && end_bg.ok)
+    {
+        strncpy(end_title, title.u.s, 1024);
+        strncpy(end_text, txt.u.s, 1024);
+        strncpy(end_bg_path, end_bg.u.s, 1024);
+        free(title.u.s);
+        free(txt.u.s);
+        free(end_bg.u.s);
+        title.u.s = NULL;
+        txt.u.s = NULL;
+        end_bg.u.s = NULL;
+        title.ok = 0;
+        txt.ok = 0;
+        end_bg.ok = 0;
+    }
+    else
+    {
+        if (title.ok == 0)
+        {
+            debug_print("No title.\n");
+        }
+        else
+        {
+            free(title.u.s);
+            title.u.s = NULL;
+            title.ok = 0;
+        }
+        if (txt.ok == 0)
+        {
+            debug_print("No text.\n");
+        }
+        else
+        {
+            free(txt.u.s);
+            txt.u.s = NULL;
+            txt.ok = 0;
+        }
+        if (end_bg.ok == 0)
+        {
+            debug_print("No bg.\n");
+        }
+        else
+        {
+            free(end_bg.u.s);
+            end_bg.u.s = NULL;
+            end_bg.ok = 0;
+        }
+        return -1;
+    }
     return 0;
 }

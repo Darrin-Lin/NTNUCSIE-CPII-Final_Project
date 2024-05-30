@@ -13,7 +13,7 @@
 #define TEXT_COLOR {0, 0, 0, 0xFF}
 
 
-#define BUTTON_WIDTH 200
+#define BUTTON_WIDTH 800
 #define BUTTON_HEIGHT 50
 #define BUTTON_COLOR {0xAA, 0xAA, 0xAA, 0xAA}
 #define BUTTON_SELECT_COLOR_RED 0xAA
