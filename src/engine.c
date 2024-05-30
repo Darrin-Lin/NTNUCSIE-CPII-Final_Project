@@ -1,13 +1,15 @@
 #include "basic_include.h"
-#include "./toml_process/toml_get.h"
+#include "./TOML_process/TOML_get.h"
 #include "./SDL_process/window_process.h"
 #include "./SDL_process/init_all_SDL.h"
+#include "./cJSON_process/save_process.h"
 #include "debug.h"
 
 SDL_Window *window;
 TTF_Font *font;
 TTF_Font *title_font;
 toml_table_t *novel;
+cJSON *save;
 
 void close_SDL()
 {
@@ -24,7 +26,10 @@ void close_TOML()
 {
     toml_free(novel);
 }
-
+void close_CJSON()
+{
+    cJSON_Delete(save);
+}
 int main(int argc, char *argv[])
 {
     debug_print("DEBUG MODE ON\n");
@@ -42,6 +47,14 @@ int main(int argc, char *argv[])
     char dialogue_id[1024] = {0};
     char end_id[1024] = {0};
 
+    // using path
+    char use_novel_path[1024] = "./res/novel.toml";      // {0};
+    char use_background_path[1024] = "./res/img/bg.jpg"; // {0};
+    char use_avatar_path[1024] = "./res/img/avatar.png"; // {0};
+    char use_tachie_path[1024] = "./res/img/avatar.png"; // {0};
+    char use_ttf_path[1024] = "./res/fonts/font.ttf";    // {0};// NotoSansTC-Medium.ttf
+    char use_save_path[1024] = "./res/save.json";        // {0};
+
     toml_array_t *options = NULL;
     char option_text[5][1024] = {0};
     int32_t option_num = 0;
@@ -51,7 +64,7 @@ int main(int argc, char *argv[])
     enum status stat = 0;
     enum status next_stat = 0;
     int8_t wait_key = 0;
-    FILE *novel_file = fopen("./res/novel.toml", "r");
+    FILE *novel_file = fopen(use_novel_path, "r");
     if (novel_file == NULL)
     {
         debug_print("No novel file.\n");
@@ -73,7 +86,8 @@ int main(int argc, char *argv[])
     // read save file
     // TODO: save file
     // TODO: add object toml or json
-    FILE *save_file = fopen("./res/save.toml", "r");
+    FILE *save_file = fopen(use_save_path, "r");
+    char save_buffer[16384] = {0};
     if (save_file == NULL)
     {
         debug_print("No save file.\n");
@@ -92,36 +106,24 @@ int main(int argc, char *argv[])
             debug_print("No starter.\n");
             return -1;
         }
+        save = cJSON_CreateObject();
+        update_event(save,event_id);
     }
     else
     {
-        toml_table_t *save = toml_parse_file(save_file, errbuf, sizeof(errbuf));
+        fread(save_buffer, 1, 16384, save_file);
+        save = cJSON_Parse(save_buffer);
         if (save == NULL)
         {
-            debug_print("Error parsing file: %s\n", errbuf);
-            return -1;
-        }
-        if (errbuf[0] != '\0')
-        {
-            debug_print("TOML Error: %s\n", errbuf);
-            return -1;
-        }
-        tmp_datum = toml_string_in(save, "event");
-        if (tmp_datum.ok)
-        {
-            strncpy(event_id, tmp_datum.u.s, sizeof(event_id));
-            stat = STATUS_EVENT;
-            free(tmp_datum.u.s);
-            tmp_datum.ok = 0;
-            tmp_datum.u.s = NULL;
-        }
-        else
-        {
-            debug_print("No event.\n");
+            debug_print("Error parsing save file.\n");
             return -1;
         }
         fclose(save_file);
-        toml_free(save);
+        if (cJSON_GetObjectItem(save, "event") != NULL)
+        {
+            strcpy(event_id, cJSON_GetObjectItem(save, "event")->valuestring);
+            next_stat = STATUS_EVENT;
+        }
     }
     wait_key = 1;
     if (mySDL_init())
@@ -149,13 +151,13 @@ int main(int argc, char *argv[])
         return -1;
     }
     atexit(close_SDL);
-    font = TTF_OpenFont("./res/fonts/NotoSansTC-Medium.ttf", 24);
+    font = TTF_OpenFont(use_ttf_path, 24);
     if (font == NULL)
     {
         debug_print("can't open font.\n");
         return -1;
     }
-    title_font = TTF_OpenFont("./res/fonts/NotoSansTC-Medium.ttf", 48);
+    title_font = TTF_OpenFont(use_ttf_path, 48);
     atexit(close_TTF);
     // show
     while (1)
@@ -234,7 +236,7 @@ int main(int argc, char *argv[])
                             debug_print("End.\n");
                             // return 0;
                         }
-                        
+
                         if (stat == STATUS_DIALOGUE_OPTION)
                         {
                             option_num = toml_array_nelem(options);
@@ -279,6 +281,15 @@ int main(int argc, char *argv[])
                         debug_print("Option choose: %d\n", option_choose);
                     }
                 }
+                if (event.key.keysym.sym == SDLK_s)
+                {
+                    if (stat == STATUS_EVENT)
+                    {
+                        update_event(save, event_id);
+                    }
+                    update_save_file(use_save_path, save);
+                    return 0;
+                }
             }
         }
 
@@ -294,22 +305,21 @@ int main(int argc, char *argv[])
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
         // draw
-        if (stat == STATUS_DIALOGUE && wait_key == 0)
-        {
-            draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "./res/img/avatar.png", "王", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
-            wait_key = 1;
-        }
         // draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "./res/img/avatar.png", "王一二三四五六", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
 
         // char test[5][1024] = {"1", "2", "3", "4", "5"};
+        if (stat == STATUS_EVENT)
+        {
+            update_event(save, event_id);
+        }
         if (stat == STATUS_SCENE)
         {
-            draw_background(renderer, "./res/img/bg.jpg");
+            draw_background(renderer, use_background_path);
             draw_title(renderer, title_font, scene_name, TITLE_CENTER);
         }
         if (stat == STATUS_DIALOGUE || stat == STATUS_DIALOGUE_OPTION)
         {
-            draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "./res/img/avatar.png", character_name, dialogue_text);
+            draw_conversation(renderer, font, use_background_path, use_avatar_path, use_tachie_path, character_name, dialogue_text);
         }
         if (stat == STATUS_DIALOGUE_OPTION)
         {
@@ -337,14 +347,11 @@ int main(int argc, char *argv[])
             }
             draw_options(renderer, font, option_text, option_num, option_choose);
         }
-        if(stat == STATUS_END)
+        if (stat == STATUS_END)
         {
-            draw_ending(renderer, title_font, font, "./res/img/bg.jpg", scene_name, end_text);
+            draw_ending(renderer, title_font, font, use_background_path, scene_name, end_text);
         }
 
-        // draw_options(renderer, font, test, 5, 0);
-        // draw_background(renderer, "./res/img/bg.jpg");
-        // draw_title(renderer, title_font, "title");
         // present
         SDL_RenderPresent(renderer);
         SDL_DestroyRenderer(renderer);
