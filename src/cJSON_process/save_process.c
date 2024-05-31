@@ -170,7 +170,7 @@ int8_t update_favorability_add(cJSON *save, char *character_id, int32_t favorabi
         }
         else
         {
-            cJSON_SetValueint(character, cJSON_GetNumberValue(character) + favorability_add);
+            cJSON_SetIntValue(character, cJSON_GetNumberValue(character) + favorability_add);
         }
         return 0;
     }
@@ -206,12 +206,12 @@ int8_t update_favorability_get(cJSON *save, char *character_id, int32_t *favorab
         {
             if(cJSON_GetNumberValue(character) > MAX_FACORABILITY)
             {
-                cJSON_SetValueint(character, MAX_FACORABILITY);
+                cJSON_SetIntValue(character, MAX_FACORABILITY);
                 *favorability = MAX_FACORABILITY;
             }
             else if(cJSON_GetNumberValue(character) < MIN_FACORABILITY)
             {
-                cJSON_SetValueint(character, MIN_FACORABILITY);
+                cJSON_SetIntValue(character, MIN_FACORABILITY);
                 *favorability = MIN_FACORABILITY;
             }
             else
@@ -264,7 +264,7 @@ int8_t update_favorability_set(cJSON *save, char *character_id, int32_t favorabi
         }
         else
         {
-            cJSON_SetValueint(character, favorability);
+            cJSON_SetIntValue(character, favorability);
         }
     }
     return 0;
