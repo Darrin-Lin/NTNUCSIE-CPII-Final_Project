@@ -1,5 +1,6 @@
 name = "Final Project"
 author = "TA"
+start_background = "assets/start.bmp"
 
 [player]
 starter = "start"

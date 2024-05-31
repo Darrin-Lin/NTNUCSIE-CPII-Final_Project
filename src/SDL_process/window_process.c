@@ -1,6 +1,55 @@
 
 #include "window_process.h"
 
+int8_t draw_start_menu(SDL_Renderer *renderer, TTF_Font *title_font, TTF_Font *font, char *bg_path, char *game_name)
+{
+    if (renderer == NULL || title_font == NULL || font == NULL || game_name == NULL )
+    {
+        return -1;
+    }
+    if (bg_path == NULL)
+    {
+        SDL_Color start_bg = DEFAULT_BG_COLOR;
+        SDL_SetRenderDrawColor(renderer, start_bg.r, start_bg.g, start_bg.b, start_bg.a);
+        SDL_Rect full_bg = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+        SDL_RenderFillRect(renderer, &full_bg);
+    }
+    else
+    {
+        draw_background(renderer, bg_path);
+    }
+    draw_title(renderer, title_font, game_name, TITLE_TOP);
+    SDL_Surface *start_surface = NULL;
+    SDL_Color color = TITLE_COLOR;
+    SDL_Surface *start_text_surface = TTF_RenderUTF8_Blended_Wrapped(font, "Press [Space] to Start.", color, (WINDOW_WIDTH - 20));
+    if (start_text_surface == NULL)
+    {
+        debug_print("can't create start_text_surface.\n");
+        return -1;
+    }
+    SDL_Texture *start_texture = SDL_CreateTextureFromSurface(renderer, start_text_surface);
+    if (start_texture == NULL)
+    {
+        debug_print("can't create start_texture.\n");
+        SDL_FreeSurface(start_text_surface);
+        return -1;
+    }
+    SDL_Rect start_rect = {10, WINDOW_HEIGHT - TITLE_HEIGHT*1.5 , WINDOW_WIDTH - 20, TITLE_HEIGHT*0.5};
+    SDL_Color start_bg_color = TITLE_BG_COLOR;
+    SDL_SetRenderDrawColor(renderer, start_bg_color.r, start_bg_color.g, start_bg_color.b, start_bg_color.a);
+    SDL_RenderFillRect(renderer, &start_rect);
+    start_rect.w = start_text_surface->w;
+    start_rect.h = start_text_surface->h;
+    start_rect.x = WINDOW_WIDTH / 2 - start_text_surface->w / 2+20;
+    start_rect.y += TITLE_HEIGHT*0.5 / 2 - start_text_surface->h / 2;
+    SDL_RenderCopy(renderer, start_texture, NULL, &start_rect);
+    SDL_DestroyTexture(start_texture);
+    start_texture = NULL;
+    SDL_FreeSurface(start_text_surface);
+    start_text_surface = NULL;
+    return 0;
+}
+
 int8_t draw_conversation(SDL_Renderer *renderer, TTF_Font *font, char *bg_path, char *avatar_path, char *tachie_path, char *character_name, char *text)
 {
     if (renderer == NULL || bg_path == NULL || avatar_path == NULL || tachie_path == NULL || character_name == NULL || text == NULL)
