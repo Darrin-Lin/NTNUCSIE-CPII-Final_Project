@@ -326,6 +326,7 @@ int main(int argc, char *argv[])
         if (stat == STATUS_EVENT)
         {
             update_event(save, event_id);
+            draw_title(renderer, title_font, event_id, TITLE_BOTTOM);
         }
         if (stat == STATUS_SCENE)
         {

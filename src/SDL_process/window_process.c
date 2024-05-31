@@ -309,6 +309,18 @@ int8_t draw_avatar(SDL_Renderer *renderer, TTF_Font *font, char *avatar_path, ch
     SDL_RenderFillRect(renderer, &character_name_bg_rect);
     SDL_SetRenderDrawColor(renderer, 230, 127, 80, 0xFF);
     SDL_RenderFillRect(renderer, &avatar_rect);
+    if((double)avatar->w / AVATAR_WIDTH > (double)avatar->h / AVATAR_HEIGHT)
+    {
+        avatar_rect.w = AVATAR_WIDTH;
+        avatar_rect.h = (double)avatar->h / avatar->w * AVATAR_WIDTH;
+        avatar_rect.y = WINDOW_HEIGHT - CHARACTER_NAME_BG_HEIGHT - avatar_rect.h;
+    }
+    else
+    {
+        avatar_rect.h = AVATAR_HEIGHT;
+        avatar_rect.w = (double)avatar->w / avatar->h * AVATAR_HEIGHT;
+        avatar_rect.x = AVATAR_WIDTH / 2 - avatar_rect.w / 2;
+    }
     SDL_RenderCopy(renderer, avatar_texture, NULL, &avatar_rect);
     character_name_bg_rect.w = character_name_surface->w < AVATAR_WIDTH ? character_name_surface->w : AVATAR_WIDTH;
     character_name_bg_rect.h = character_name_surface->h;
