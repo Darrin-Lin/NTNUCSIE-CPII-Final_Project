@@ -107,7 +107,22 @@ int main(int argc, char *argv[])
             return -1;
         }
         save = cJSON_CreateObject();
-        update_event(save,event_id);
+        toml_array_t *item = toml_array_in(start, "inventory");
+        if (item != NULL)
+        {
+            for(int32_t i = 0; i < toml_array_nelem(item); i++)
+            {
+                toml_datum_t item_txt = toml_string_at(item, i);
+                if (item_txt.ok)
+                {
+                    update_add_item(save, item_txt.u.s);
+                    free(item_txt.u.s);
+                    item_txt.ok = 0;
+                    item_txt.u.s = NULL;
+                }
+            }
+        }
+        update_event(save, event_id);
     }
     else
     {
@@ -268,7 +283,7 @@ int main(int argc, char *argv[])
                     debug_print("UP key press.\n");
                     if (stat == STATUS_DIALOGUE_OPTION)
                     {
-                        option_choose = option_choose == 0 ? option_num - 1 : option_choose - 1;
+                        option_choose =(option_choose - 1)%option_num;
                         debug_print("Option choose: %d\n", option_choose);
                     }
                 }
@@ -277,7 +292,7 @@ int main(int argc, char *argv[])
                     debug_print("DOWN key press.\n");
                     if (stat == STATUS_DIALOGUE_OPTION)
                     {
-                        option_choose = option_choose == option_num - 1 ? 0 : option_choose + 1;
+                        option_choose = (option_choose  + 1)%option_num;
                         debug_print("Option choose: %d\n", option_choose);
                     }
                 }

@@ -54,6 +54,11 @@ int8_t update_add_item(cJSON *save, char *item_id)
     }
     else
     {
+        if(cJSON_GetArraySize(item) >= MAX_ITEM_NUM)
+        {
+            debug_print("Bag is full.\n");
+            return -1;
+        }
         cJSON_AddItemToArray(item, cJSON_CreateString(item_id));
     }
     return 0;
@@ -131,6 +136,11 @@ int8_t update_get_item_num(cJSON *save, int32_t *item_num)
     else
     {
         *item_num = cJSON_GetArraySize(items);
+        if(*item_num > MAX_ITEM_NUM)
+        {
+            debug_print("Bag is full.\n");
+            return 1;
+        }
     }
     return 0;
 }
@@ -192,7 +202,30 @@ int8_t update_favorability_get(cJSON *save, char *character_id, int32_t *favorab
             debug_print("character not found\n");
             cJSON_AddNumberToObject(favorability_json, character_id, 0);
         }
-        *favorability = cJSON_GetNumberValue(character);
+        else if(cJSON_IsNumber(character))
+        {
+            if(cJSON_GetNumberValue(character) > MAX_FACORABILITY)
+            {
+                cJSON_SetValueint(character, MAX_FACORABILITY);
+                *favorability = MAX_FACORABILITY;
+            }
+            else if(cJSON_GetNumberValue(character) < MIN_FACORABILITY)
+            {
+                cJSON_SetValueint(character, MIN_FACORABILITY);
+                *favorability = MIN_FACORABILITY;
+            }
+            else
+            {
+                *favorability = cJSON_GetNumberValue(character);
+            }
+            *favorability = cJSON_GetNumberValue(character);
+        }
+        else
+        {
+            debug_print("character is not number\n");
+            return -1;
+        }
+
     }
     return 0;
 }
@@ -202,6 +235,16 @@ int8_t update_favorability_set(cJSON *save, char *character_id, int32_t favorabi
     {
         debug_print("save or character_id is empty\n");
         return -1;
+    }
+    if(favorability > MAX_FACORABILITY)
+    {
+        debug_print("favorability is too high\n");
+        favorability = MAX_FACORABILITY;
+    }
+    else if(favorability < MIN_FACORABILITY)
+    {
+        debug_print("favorability is too low\n");
+        favorability = MIN_FACORABILITY;
     }
     cJSON *favorability_json = cJSON_GetObjectItem(save, "favorability");
     if (favorability_json == NULL)
