@@ -109,7 +109,7 @@ int8_t draw_ending(SDL_Renderer *renderer, TTF_Font *title_font, TTF_Font *font,
         SDL_FreeSurface(dialogue_surface);
         return -1;
     }
-    SDL_Rect dialogue_rect = {10, TITLE_HEIGHT*1.5, dialogue_surface->w, dialogue_surface->h};
+    SDL_Rect dialogue_rect = {10, TITLE_HEIGHT * 1.5, dialogue_surface->w, dialogue_surface->h};
     SDL_RenderCopy(renderer, dialogue_texture, NULL, &dialogue_rect);
     SDL_DestroyTexture(dialogue_texture);
     dialogue_texture = NULL;
@@ -129,7 +129,7 @@ int8_t draw_title(SDL_Renderer *renderer, TTF_Font *title_font, char *title_text
     int32_t title_y = 0;
     if (position == TITLE_TOP)
     {
-        title_y = TITLE_HEIGHT/2;
+        title_y = TITLE_HEIGHT / 2;
     }
     else if (position == TITLE_CENTER)
     {
@@ -139,12 +139,12 @@ int8_t draw_title(SDL_Renderer *renderer, TTF_Font *title_font, char *title_text
     {
         title_y = WINDOW_HEIGHT - TITLE_HEIGHT;
     }
-    else 
+    else
     {
         debug_print("title_position is invalid.\n");
         return -1;
     }
-    SDL_Rect title_rect = {0, 0, WINDOW_WIDTH, TITLE_HEIGHT};// just init
+    SDL_Rect title_rect = {0, 0, WINDOW_WIDTH, TITLE_HEIGHT}; // just init
     SDL_Color color = TITLE_COLOR;
     title_surface = TTF_RenderUTF8_Solid(title_font, title_text, color);
     if (title_surface == NULL)
@@ -166,7 +166,7 @@ int8_t draw_title(SDL_Renderer *renderer, TTF_Font *title_font, char *title_text
     title_rect.w = title_surface->w;
     title_rect.h = title_surface->h;
     title_rect.x = WINDOW_WIDTH / 2 - title_surface->w / 2;
-    title_rect.y = title_y+TITLE_HEIGHT / 2 - title_surface->h / 2;
+    title_rect.y = title_y + TITLE_HEIGHT / 2 - title_surface->h / 2;
     SDL_RenderCopy(renderer, title_texture, NULL, &title_rect);
     SDL_DestroyTexture(title_texture);
     title_texture = NULL;
@@ -309,7 +309,7 @@ int8_t draw_avatar(SDL_Renderer *renderer, TTF_Font *font, char *avatar_path, ch
     SDL_RenderFillRect(renderer, &character_name_bg_rect);
     SDL_SetRenderDrawColor(renderer, 230, 127, 80, 0xFF);
     SDL_RenderFillRect(renderer, &avatar_rect);
-    if((double)avatar->w / AVATAR_WIDTH > (double)avatar->h / AVATAR_HEIGHT)
+    if ((double)avatar->w / AVATAR_WIDTH > (double)avatar->h / AVATAR_HEIGHT)
     {
         avatar_rect.w = AVATAR_WIDTH;
         avatar_rect.h = (double)avatar->h / avatar->w * AVATAR_WIDTH;
@@ -366,6 +366,57 @@ int8_t draw_tachie(SDL_Renderer *renderer, char *tachie_path)
     if (tachie_texture != NULL || tachie != NULL)
     {
         debug_print("error:%d,%d\n", tachie_texture, tachie);
+    }
+    return 0;
+}
+int8_t draw_setting_bar(SDL_Renderer *renderer, TTF_Font *font, enum setting_bar_option option_choose)
+{
+    if (renderer == NULL || font == NULL)
+    {
+        return -1;
+    }
+    SDL_Rect setting_bar_rect = {0, 0, WINDOW_WIDTH, SETTING_BAR_HEIGHT};
+    SDL_Color setting_bar_color = SETTING_BAR_BG_COLOR;
+    SDL_SetRenderDrawColor(renderer, setting_bar_color.r, setting_bar_color.g, setting_bar_color.b, setting_bar_color.a);
+    SDL_RenderFillRect(renderer, &setting_bar_rect);
+    SDL_Surface *setting_bar_option_surface = NULL;
+    SDL_Texture *setting_bar_option_texture = NULL;
+    SDL_Rect setting_bar_option_rect = {0, 0, SETTING_BAR_WIDTH, SETTING_BAR_HEIGHT};
+    char setting_bar_option_text[SETTING_BAR_OPTION_NUM][1024] = SETTING_BAR_OPTIONS;
+    for (int32_t i = 0; i < SETTING_BAR_OPTION_NUM; i++)
+    {
+        SDL_Color text_color = TEXT_COLOR;
+        SDL_Color bg_color = SETTING_BAR_COLOR;
+        SDL_Rect setting_bar_option_rect = {0, 0, SETTING_BAR_WIDTH, SETTING_BAR_HEIGHT};
+        SDL_Color bg_select_color = SETTING_BAR_SELECT_COLOR;
+        setting_bar_option_rect.x = (WINDOW_WIDTH / 2 - SETTING_BAR_WIDTH * SETTING_BAR_OPTION_NUM / 2) + i * (SETTING_BAR_WIDTH);
+        setting_bar_option_surface = TTF_RenderUTF8_Solid(font, setting_bar_option_text[i], text_color);
+        if (setting_bar_option_surface == NULL)
+        {
+            debug_print("can't create setting_bar_option_surface.\n");
+            return -1;
+        }
+        setting_bar_option_texture = SDL_CreateTextureFromSurface(renderer, setting_bar_option_surface);
+        if (setting_bar_option_texture == NULL)
+        {
+            debug_print("can't create setting_bar_option_texture.\n");
+            SDL_FreeSurface(setting_bar_option_surface);
+            return -1;
+        }
+        if (i == option_choose)
+        {
+            SDL_SetRenderDrawColor(renderer, bg_select_color.r, bg_select_color.g, bg_select_color.b, bg_select_color.a);
+        }
+        else
+        {
+            SDL_SetRenderDrawColor(renderer, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
+        }
+        SDL_RenderFillRect(renderer, &setting_bar_option_rect);
+        setting_bar_option_rect.x += SETTING_BAR_WIDTH / 2 - setting_bar_option_surface->w / 2;
+        setting_bar_option_rect.y = SETTING_BAR_HEIGHT / 2 - setting_bar_option_surface->h / 2;
+        setting_bar_option_rect.w = setting_bar_option_surface->w;
+        setting_bar_option_rect.h = setting_bar_option_surface->h;
+        SDL_RenderCopy(renderer, setting_bar_option_texture, NULL, &setting_bar_option_rect);
     }
     return 0;
 }

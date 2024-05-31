@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
     char option_text[5][1024] = {0};
     int32_t option_num = 0;
     int32_t option_choose = 0;
+    enum setting_bar_option setting_bar_select=0;
     toml_datum_t tmp_datum;
     // set status
     enum status stat = 0;
@@ -296,6 +297,15 @@ int main(int argc, char *argv[])
                         debug_print("Option choose: %d\n", option_choose);
                     }
                 }
+                if(event.key.keysym.sym == SDLK_RIGHT)
+                {
+                    setting_bar_select = (setting_bar_select+1)%SETTING_BAR_OPTION_NUM;
+                }
+                if(event.key.keysym.sym == SDLK_LEFT)
+                {
+                    setting_bar_select = (setting_bar_select-1)%SETTING_BAR_OPTION_NUM;
+
+                }
                 if (event.key.keysym.sym == SDLK_s)
                 {
                     if (stat == STATUS_EVENT)
@@ -367,7 +377,7 @@ int main(int argc, char *argv[])
         {
             draw_ending(renderer, title_font, font, use_background_path, scene_name, end_text);
         }
-
+        draw_setting_bar(renderer,font,setting_bar_select);
         // present
         SDL_RenderPresent(renderer);
         SDL_DestroyRenderer(renderer);

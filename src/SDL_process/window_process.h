@@ -27,11 +27,27 @@
 
 #define ENDING_BG_COLOR {0xAA, 0xAA, 0xAA, 0xAA}
 
+#define SETTING_BAR_OPTIONS {"Save", "Bag", "Characters", "Exit"}
+#define SETTING_BAR_OPTION_NUM 4
+#define SETTING_BAR_HEIGHT 30
+#define SETTING_BAR_WIDTH 150
+#define SETTING_BAR_COLOR {0xAA, 0xAA, 0xAA, 0xAA}
+#define SETTING_BAR_SELECT_COLOR {0xFF, 0xFF, 0xFF, 0xFF}
+#define SETTING_BAR_BG_COLOR {0x00,0x00,0xAA,0xFF}
+
 enum title_position
 {
     TITLE_TOP = 0,
     TITLE_CENTER,
     TITLE_BOTTOM
+};
+
+enum setting_bar_option
+{
+    SETTING_BAR_OPTION_SAVE = 0,
+    SETTING_BAR_OPTION_BAG,
+    SETTING_BAR_OPTION_CHARACTERS,
+    SETTING_BAR_OPTION_EXIT
 };
 
 int8_t draw_conversation(SDL_Renderer *renderer, TTF_Font *font, char *bg_path, char *avatar_path,char *tachie_path, char *character_name, char *text);
@@ -42,3 +58,4 @@ int8_t draw_background(SDL_Renderer *renderer, char *bg_path);
 int8_t draw_dialogue(SDL_Renderer *renderer ,TTF_Font *font, char *text);
 int8_t draw_avatar(SDL_Renderer *renderer, TTF_Font *font, char *avatar_path, char *character_name);
 int8_t draw_tachie(SDL_Renderer *renderer,char *tachie_path);
+int8_t draw_setting_bar(SDL_Renderer *renderer, TTF_Font *font, enum setting_bar_option option_choose);
