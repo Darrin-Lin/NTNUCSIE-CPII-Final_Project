@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     char dialogue_id[1024] = {0};
     char end_id[1024] = {0};
     char items_id[MAX_ITEM_NUM][1024] = {0};
-
+    char tmp_item_id[1024] = {0};
     // using path
     char use_novel_path[1024] = "./res/novel.toml";                                    // {0};
     char use_background_path[1024] = "./res/img/bg.jpg";                               // {0};
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
                     if (mode == MODE_START)
                     {
                         mode = MODE_NOVEL;
-                        int8_t change = change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, scene_name, character_name, dialogue_text, end_text, event_id, scene_id, character_id, dialogue_id, end_id, &options, option_choose);
+                        int8_t change = change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, scene_name, character_name, dialogue_text, end_text, event_id, scene_id, character_id, dialogue_id,tmp_item_id ,end_id, &options, option_choose);
                         if (change == -1)
                         {
                             debug_print("Error change status %d\n", stat);
@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
                                 return -1;
                             }
                         }
-                        int8_t change = change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, scene_name, character_name, dialogue_text, end_text, event_id, scene_id, character_id, dialogue_id, end_id, &options, option_choose);
+                        int8_t change = change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, scene_name, character_name, dialogue_text, end_text, event_id, scene_id, character_id, dialogue_id,tmp_item_id, end_id, &options, option_choose);
                         if (change == -1)
                         {
                             debug_print("Error change status %d\n", stat);
@@ -310,6 +310,10 @@ int main(int argc, char *argv[])
                                 debug_print("Quit.\n");
                                 return -1;
                             }
+                        }
+                        if(stat == STATUS_EVENT && strlen(tmp_item_id)>0)
+                        {
+                            update_add_item(save, tmp_item_id);
                         }
                         debug_print("Change status: %d\n", stat);
                         debug_print("Next status: %d\n", next_stat);
@@ -431,6 +435,13 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
+                if(event.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    if(mode == MODE_HELP || mode == MODE_FAVORABILITY || mode == MODE_BAG || mode == MODE_SETTING)
+                    {
+                        mode = MODE_NOVEL;
+                    }
+                }
             }
         }
 
@@ -466,6 +477,7 @@ int main(int argc, char *argv[])
             {
                 update_event(save, event_id);
                 draw_title(renderer, title_font, event_id, TITLE_BOTTOM);
+                //draw 
             }
             if (stat == STATUS_SCENE)
             {

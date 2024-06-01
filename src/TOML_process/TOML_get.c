@@ -1,8 +1,8 @@
 #include "TOML_get.h"
 
-int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_stat, char background_path[1024], char avatar_path[1024], char tachie_path[1024], char scene_name[1024], char character_name[1024], char dialogue_text[1024], char end_text[4096], char event_id[1024], char scene_id[1024], char character_id[1024], char dialogue_id[1024], char end_id[1024], toml_array_t **options, int32_t option_choose)
+int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_stat, char background_path[1024], char avatar_path[1024], char tachie_path[1024], char scene_name[1024], char character_name[1024], char dialogue_text[1024], char end_text[4096], char event_id[1024], char scene_id[1024], char character_id[1024], char dialogue_id[1024], char item_id[1024], char end_id[1024], toml_array_t **options, int32_t option_choose)
 {
-    if (novel == NULL || stat == NULL || next_stat == NULL || background_path == NULL || avatar_path == NULL || tachie_path == NULL || scene_name == NULL || character_name == NULL || dialogue_text == NULL || end_text == NULL || event_id == NULL || scene_id == NULL || character_id == NULL || dialogue_id == NULL || end_id == NULL || options == NULL)
+    if (novel == NULL || stat == NULL || next_stat == NULL || background_path == NULL || avatar_path == NULL || tachie_path == NULL || scene_name == NULL || character_name == NULL || dialogue_text == NULL || end_text == NULL || event_id == NULL || scene_id == NULL || character_id == NULL || dialogue_id == NULL || item_id == NULL || end_id == NULL || options == NULL)
     {
         return -1;
     }
@@ -26,7 +26,13 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
             debug_print("No event.\n");
             return -1;
         }
-        tmp_datum = toml_string_in(toml_table_in(events, event_id), "scene");
+        toml_table_t *event = toml_table_in(events, event_id);
+        if (!event)
+        {
+            debug_print("No event.\n");
+            return -1;
+        }
+        tmp_datum = toml_string_in(event, "scene");
         if (tmp_datum.ok)
         {
             strncpy(scene_id, tmp_datum.u.s, 1024);
@@ -36,7 +42,7 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
             tmp_datum.u.s = NULL;
             tmp_datum.ok = 0;
 
-            tmp_datum = toml_string_in(toml_table_in(events, event_id), "dialogue");
+            tmp_datum = toml_string_in(event, "dialogue");
             if (tmp_datum.ok)
             {
                 strncpy(dialogue_id, tmp_datum.u.s, 1024);
@@ -50,10 +56,23 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
                 // toml_free(events);
                 return -1;
             }
+            tmp_datum = toml_string_in(event, "item");
+            if (tmp_datum.ok)
+            {
+                strncpy(item_id, tmp_datum.u.s, 1024);
+                debug_print("get item: %s\n", item_id);
+                free(tmp_datum.u.s);
+                tmp_datum.u.s = NULL;
+                tmp_datum.ok = 0;
+            }
+            else
+            {
+                item_id[0] = '\0';
+            }
         }
         else
         {
-            tmp_datum = toml_string_in(toml_table_in(events, event_id), "end");
+            tmp_datum = toml_string_in(event, "end");
             if (tmp_datum.ok)
             {
                 *stat = STATUS_EVENT;
@@ -355,18 +374,7 @@ int8_t get_character(toml_table_t *characters, const char *character_id, toml_da
     }
     return 0;
 }
-int8_t get_event(toml_table_t *events, const char *event_id, toml_datum_t *event_scene, toml_datum_t *event_dialogue)
-{
-    toml_table_t *event = toml_table_in(events, event_id);
-    if (!event)
-    {
-        debug_print("event is NULL");
-        return -1;
-    }
-    *event_scene = toml_string_in(event, "scene");
-    *event_dialogue = toml_string_in(event, "dialogue");
-    return 0;
-}
+
 int8_t get_dialogue(toml_table_t *dialogues, const char *dialogue_id, toml_datum_t *dialogue_character, toml_datum_t *dialogue_text, toml_array_t **options)
 {
     toml_table_t *dialogue = toml_table_in(dialogues, dialogue_id);
@@ -478,7 +486,7 @@ int8_t get_items(toml_table_t *items, const char *item_id, char *item_name_and_t
 
     if (name.ok && description.ok && icon.ok)
     {
-        snprintf(item_name_and_text,1024, "%s: %s", name.u.s, description.u.s);
+        snprintf(item_name_and_text, 1024, "%s: %s", name.u.s, description.u.s);
         strncpy(item_img_path, icon.u.s, 1024);
         free(name.u.s);
         free(description.u.s);

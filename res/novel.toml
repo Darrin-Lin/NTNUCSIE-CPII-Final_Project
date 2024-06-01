@@ -32,6 +32,11 @@ name = "Vision Pro"
 description = "A spatial computer"
 icon = "assets/item/vision-pro/icon.bmp"
 
+[item.iPad]
+name = "iPad"
+description = "A tablet computer"
+icon = "assets/item/iPad/icon.bmp"
+
 [event.start]
 scene = "library"
 dialogue = "hello"
@@ -66,6 +71,7 @@ next = "teamup"
 [event.change_scene_to_meeting_room]
 scene = "meeting-room"
 dialogue = "ta_intro"
+item = "iPad"
 
 [dialogue.ta_intro]
 character = "ta"
