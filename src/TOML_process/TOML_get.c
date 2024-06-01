@@ -56,19 +56,6 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
                 // toml_free(events);
                 return -1;
             }
-            tmp_datum = toml_string_in(event, "item");
-            if (tmp_datum.ok)
-            {
-                strncpy(item_id, tmp_datum.u.s, 1024);
-                debug_print("get item: %s\n", item_id);
-                free(tmp_datum.u.s);
-                tmp_datum.u.s = NULL;
-                tmp_datum.ok = 0;
-            }
-            else
-            {
-                item_id[0] = '\0';
-            }
         }
         else
         {
@@ -89,6 +76,19 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
                 // toml_free(events);
                 return -1;
             }
+        }
+        tmp_datum = toml_string_in(event, "item");
+        if (tmp_datum.ok)
+        {
+            strncpy(item_id, tmp_datum.u.s, 1024);
+            debug_print("get item: %s\n", item_id);
+            free(tmp_datum.u.s);
+            tmp_datum.u.s = NULL;
+            tmp_datum.ok = 0;
+        }
+        else
+        {
+            item_id[0] = '\0';
         }
 
         break;

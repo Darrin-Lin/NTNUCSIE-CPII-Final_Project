@@ -314,8 +314,10 @@ int main(int argc, char *argv[])
                                 return -1;
                             }
                         }
-                        if (stat == STATUS_EVENT && strlen(tmp_item_id) > 0)
+                        if (stat == STATUS_EVENT)
                         {
+                            update_event(save, event_id);
+                            if(strlen(tmp_item_id) > 0)
                             update_add_item(save, tmp_item_id);
                         }
                         if(stat == STATUS_DIALOGUE || stat == STATUS_DIALOGUE_OPTION)
@@ -482,7 +484,16 @@ int main(int argc, char *argv[])
         {
             if (stat == STATUS_EVENT)
             {
-                update_event(save, event_id);
+                if(strlen(tmp_item_id))
+                {
+                    char tmp_item_name[1024] = {0};
+                    char tmp_item_img_path[1024] = {0};
+                    char use_tmp_item_img_path[1024] = "./res/img/avatar.png"; // {0};
+                    toml_table_t *items = toml_table_in(novel, "item");
+                    get_items(items, tmp_item_id, tmp_item_name, tmp_item_img_path);
+                    strtok(tmp_item_name,":");
+                    draw_item_get(renderer, title_font, tmp_item_name, use_tmp_item_img_path);
+                }
                 draw_title(renderer, title_font, event_id, TITLE_BOTTOM);
                 // draw
             }

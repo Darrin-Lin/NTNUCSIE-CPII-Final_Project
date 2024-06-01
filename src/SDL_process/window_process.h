@@ -5,8 +5,8 @@
 
 #pragma once
 
-#define DEFAULT_BG_COLOR    \
-    {                       \
+#define DEFAULT_BG_COLOR       \
+    {                          \
         0xFF, 0xFF, 0xFF, 0xFF \
     }
 
@@ -67,17 +67,31 @@
         0x00, 0x00, 0xAA, 0xFF \
     }
 #define ITEM_COL_NUM 2
-#define ITEM_COLOR           \
-    {                        \
+#define ITEM_COLOR             \
+    {                          \
         0xAA, 0xAA, 0xAA, 0xAA \
     }
-#define ITEM_SELECT_COLOR \
-    {                     \
+#define ITEM_SELECT_COLOR      \
+    {                          \
         0xFF, 0xFF, 0xFF, 0xFF \
     }
-#define ITEM_IMG_BG_COLOR    \
-    {                    \
+#define ITEM_IMG_BG_COLOR      \
+    {                          \
         0xAA, 0xAA, 0xAA, 0xFF \
+    }
+
+#define ITEM_GET_IMG_WIDTH 400
+#define ITEM_GET_BG_COLOR      \
+    {                          \
+        0xAA, 0xAA, 0xAA, 0xFF \
+    }
+#define ITEM_GET_TITLE_COLOR   \
+    {                          \
+        0x66, 0x66, 0x66, 0xAA \
+    }
+#define ITEM_GET_TEXT_COLOR    \
+    {                          \
+        0x00, 0x00, 0x00, 0xFF \
     }
 
 enum title_position
@@ -107,3 +121,4 @@ int8_t draw_avatar(SDL_Renderer *renderer, TTF_Font *font, char *avatar_path, ch
 int8_t draw_tachie(SDL_Renderer *renderer, char *tachie_path);
 int8_t draw_setting_bar(SDL_Renderer *renderer, TTF_Font *font, enum setting_bar_option option_choose);
 int8_t draw_bag(SDL_Renderer *renderer, TTF_Font *font, char items[MAX_ITEM_NUM][1024], char items_img_path[MAX_ITEM_NUM][1024], int32_t item_num, int32_t item_select);
+int8_t draw_item_get(SDL_Renderer *renderer, TTF_Font *title_font, char *item_name, char *item_img_path);

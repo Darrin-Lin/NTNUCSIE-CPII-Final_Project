@@ -574,3 +574,76 @@ int8_t draw_bag(SDL_Renderer *renderer, TTF_Font *font, char items[MAX_ITEM_NUM]
     }
     return 0;
 }
+int8_t draw_item_get(SDL_Renderer *renderer, TTF_Font *title_font, char *item_name, char *item_img_path)
+{
+    SDL_Surface *item_text_surface = NULL;
+    SDL_Texture *item_text_texture = NULL;
+    SDL_Surface *item_img_surface = NULL;
+    SDL_Texture *item_img_texture = NULL;
+    SDL_Rect item_rect = {WINDOW_WIDTH/2 - ITEM_GET_IMG_WIDTH/2, WINDOW_HEIGHT/2 - (ITEM_GET_IMG_WIDTH+TITLE_HEIGHT)/2, ITEM_GET_IMG_WIDTH, ITEM_GET_IMG_WIDTH};
+    SDL_Rect item_text_rect = {WINDOW_WIDTH/2 - ITEM_GET_IMG_WIDTH/2, WINDOW_HEIGHT/2 - (ITEM_GET_IMG_WIDTH+TITLE_HEIGHT)/2 + ITEM_GET_IMG_WIDTH, ITEM_GET_IMG_WIDTH, TITLE_HEIGHT};
+    if (renderer == NULL || title_font == NULL || item_name == NULL || item_img_path == NULL)
+    {
+        return -1;
+    }
+    SDL_Color color = ITEM_GET_TEXT_COLOR;
+    item_text_surface = TTF_RenderUTF8_Solid(title_font, item_name, color);
+    if (item_text_surface == NULL)
+    {
+        debug_print("can't create item_surface.\n");
+        return -1;
+    }
+    item_text_texture = SDL_CreateTextureFromSurface(renderer, item_text_surface);
+    if (item_text_texture == NULL)
+    {
+        debug_print("can't create item_texture.\n");
+        SDL_FreeSurface(item_text_surface);
+        return -1;
+    }
+    item_img_surface = IMG_Load(item_img_path);
+    if (item_img_surface == NULL)
+    {
+        debug_print("can't create item_img_surface.\n");
+        SDL_FreeSurface(item_text_surface);
+        SDL_DestroyTexture(item_text_texture);
+        return -1;
+    }
+    item_img_texture = SDL_CreateTextureFromSurface(renderer, item_img_surface);
+    if (item_img_texture == NULL)
+    {
+        debug_print("can't create item_img_texture.\n");
+        SDL_FreeSurface(item_text_surface);
+        SDL_DestroyTexture(item_text_texture);
+        SDL_FreeSurface(item_img_surface);
+        return -1;
+    }
+    SDL_Color item_title_bg_color = ITEM_GET_TITLE_COLOR;
+    SDL_Color item_img_bg_color = ITEM_GET_BG_COLOR;
+    SDL_SetRenderDrawColor(renderer, item_title_bg_color.r, item_title_bg_color.g, item_title_bg_color.b, item_title_bg_color.a);
+    SDL_RenderFillRect(renderer, &item_rect);
+    SDL_SetRenderDrawColor(renderer, item_img_bg_color.r, item_img_bg_color.g, item_img_bg_color.b, item_img_bg_color.a);
+    SDL_RenderFillRect(renderer, &item_text_rect);
+    item_text_rect.w = item_text_surface->w>ITEM_GET_IMG_WIDTH?ITEM_GET_IMG_WIDTH:item_text_surface->w;
+    item_text_rect.h = item_text_surface->h;
+    item_text_rect.x = WINDOW_WIDTH/2 - item_text_rect.w/2;
+    item_text_rect.y += TITLE_HEIGHT/2 - item_text_surface->h/2;
+    SDL_RenderCopy(renderer, item_text_texture, NULL, &item_text_rect);
+    if(item_img_surface->w > item_img_surface->h)
+    {
+        item_rect.w = ITEM_GET_IMG_WIDTH;
+        item_rect.h = item_img_surface->h * ITEM_GET_IMG_WIDTH / item_img_surface->w;
+        item_rect.y = WINDOW_HEIGHT/2 - (ITEM_GET_IMG_WIDTH+TITLE_HEIGHT)/2 + ITEM_GET_IMG_WIDTH/2 - item_rect.h/2;
+    }
+    else
+    {
+        item_rect.h = ITEM_GET_IMG_WIDTH;
+        item_rect.w = item_img_surface->w * ITEM_GET_IMG_WIDTH / item_img_surface->h;
+        item_rect.x = WINDOW_WIDTH/2 - ITEM_GET_IMG_WIDTH/2 + ITEM_GET_IMG_WIDTH/2 - item_rect.w/2;
+    }
+    SDL_RenderCopy(renderer, item_img_texture, NULL, &item_rect);
+    SDL_DestroyTexture(item_text_texture);
+    SDL_DestroyTexture(item_img_texture);
+    SDL_FreeSurface(item_text_surface);
+    SDL_FreeSurface(item_img_surface);
+    return 0;
+}
