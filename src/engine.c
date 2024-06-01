@@ -43,6 +43,16 @@ enum window_mode
 
 int main(int argc, char *argv[])
 {
+    char path[512] = {0};
+    if (argc > 1)
+    {
+        strncpy(path, argv[1], sizeof(path));
+        debug_print("Path: %s\n", path);
+    }
+    if (path[strlen(path) - 1] != '/')
+    {
+        strncat(path, "/", sizeof(path));
+    }
     debug_print("DEBUG MODE ON\n");
     char background_path[1024] = {0};
     char avatar_path[1024] = {0};
@@ -95,7 +105,7 @@ int main(int argc, char *argv[])
     enum status stat = 0;
     enum status next_stat = 0;
     enum window_mode mode = MODE_START;
-
+    snprintf(use_novel_path, sizeof(use_novel_path), "%s%s", path, "novel.toml");
     FILE *novel_file = fopen(use_novel_path, "r");
     if (novel_file == NULL)
     {
@@ -116,8 +126,7 @@ int main(int argc, char *argv[])
         return -1;
     }
     // read save file
-    // TODO: save file
-    // TODO: add object toml or json
+    snprintf(use_save_path, sizeof(use_save_path), "%s%s", path, "save.json");
     FILE *save_file = fopen(use_save_path, "r");
     char save_buffer[16384] = {0};
     if (save_file == NULL)
@@ -210,6 +219,7 @@ int main(int argc, char *argv[])
         return -1;
     }
     atexit(close_SDL);
+    snprintf(use_ttf_path, sizeof(use_ttf_path), "%s%s", path, "font.ttf");
     font = TTF_OpenFont(use_ttf_path, 24);
     if (font == NULL)
     {
@@ -388,7 +398,7 @@ int main(int argc, char *argv[])
                         item_select = ((item_select - 1) + MAX_ITEM_NUM) % MAX_ITEM_NUM;
                         debug_print("Item select: %d\n", item_select);
                     }
-                    if(mode == MODE_FAVORABILITY)
+                    if (mode == MODE_FAVORABILITY)
                     {
                         character_select = ((character_select - 1) + MAX_CHARACTER_NUM) % MAX_CHARACTER_NUM;
                     }
@@ -408,7 +418,7 @@ int main(int argc, char *argv[])
                         item_select = (item_select + 1) % MAX_ITEM_NUM;
                         debug_print("Item select: %d\n", item_select);
                     }
-                    if(mode == MODE_FAVORABILITY)
+                    if (mode == MODE_FAVORABILITY)
                     {
                         character_select = (character_select + 1) % MAX_CHARACTER_NUM;
                     }
@@ -421,11 +431,11 @@ int main(int argc, char *argv[])
                     }
                     if (mode == MODE_BAG)
                     {
-                        item_select = (item_select +( MAX_ITEM_NUM / ITEM_COL_NUM)) % MAX_ITEM_NUM;
+                        item_select = (item_select + (MAX_ITEM_NUM / ITEM_COL_NUM)) % MAX_ITEM_NUM;
                     }
-                    if(mode == MODE_FAVORABILITY)
+                    if (mode == MODE_FAVORABILITY)
                     {
-                        character_select = (character_select + (MAX_CHARACTER_NUM/CHARACTERS_COL_NUM)) % MAX_CHARACTER_NUM;
+                        character_select = (character_select + (MAX_CHARACTER_NUM / CHARACTERS_COL_NUM)) % MAX_CHARACTER_NUM;
                     }
                 }
                 if (event.key.keysym.sym == SDLK_LEFT)
@@ -438,9 +448,9 @@ int main(int argc, char *argv[])
                     {
                         item_select = ((item_select - (MAX_ITEM_NUM / ITEM_COL_NUM)) + MAX_ITEM_NUM) % MAX_ITEM_NUM;
                     }
-                    if(mode == MODE_FAVORABILITY)
+                    if (mode == MODE_FAVORABILITY)
                     {
-                        character_select = (character_select -(MAX_CHARACTER_NUM/CHARACTERS_COL_NUM)+MAX_CHARACTER_NUM) % MAX_CHARACTER_NUM;
+                        character_select = (character_select - (MAX_CHARACTER_NUM / CHARACTERS_COL_NUM) + MAX_CHARACTER_NUM) % MAX_CHARACTER_NUM;
                     }
                 }
                 if (event.key.keysym.sym == SDLK_RETURN)
@@ -474,28 +484,28 @@ int main(int argc, char *argv[])
                         {
                             mode = MODE_FAVORABILITY;
                             character_select = 0;
-                            for(int32_t i = 0; i < character_num; i++)
+                            for (int32_t i = 0; i < character_num; i++)
                             {
                                 update_favorability_get(save, character_ids[i], &favorability[i]);
                                 toml_table_t *characters = toml_table_in(novel, "character");
                                 toml_datum_t tmp_avatar_path;
                                 toml_datum_t tmp_tachie_path;
-                                get_character(characters, character_ids[i], &tmp_datum,&tmp_avatar_path, &tmp_tachie_path);
-                                if(tmp_datum.ok)
+                                get_character(characters, character_ids[i], &tmp_datum, &tmp_avatar_path, &tmp_tachie_path);
+                                if (tmp_datum.ok)
                                 {
                                     strncpy(character_names[i], tmp_datum.u.s, 1024);
                                     free(tmp_datum.u.s);
                                     tmp_datum.ok = 0;
                                     tmp_datum.u.s = NULL;
                                 }
-                                if(tmp_avatar_path.ok)
+                                if (tmp_avatar_path.ok)
                                 {
                                     strncpy(character_img_path[i], tmp_avatar_path.u.s, 1024);
                                     free(tmp_avatar_path.u.s);
                                     tmp_avatar_path.ok = 0;
                                     tmp_avatar_path.u.s = NULL;
                                 }
-                                if(tmp_tachie_path.ok)
+                                if (tmp_tachie_path.ok)
                                 {
                                     free(tmp_tachie_path.u.s);
                                     tmp_tachie_path.ok = 0;
@@ -546,6 +556,7 @@ int main(int argc, char *argv[])
         // draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "./res/img/avatar.png", "王一二三四五六", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
 
         // char test[5][1024] = {"1", "2", "3", "4", "5"};
+
         if (mode == MODE_START)
         {
             if (strncmp(background_path, "NO_BG", sizeof(background_path)) == 0)
@@ -554,11 +565,15 @@ int main(int argc, char *argv[])
             }
             else
             {
+                snprintf(use_background_path, sizeof(use_background_path), "%s%s", path, background_path);
                 draw_start_menu(renderer, title_font, font, use_background_path, title);
             }
         }
         if (mode == MODE_NOVEL)
         {
+            snprintf(use_background_path, sizeof(use_background_path), "%s%s", path, background_path);
+            snprintf(use_avatar_path, sizeof(use_avatar_path), "%s%s", path, avatar_path);
+            snprintf(use_tachie_path, sizeof(use_tachie_path), "%s%s", path, tachie_path);
             if (stat == STATUS_EVENT)
             {
                 if (strlen(tmp_item_id))
@@ -624,6 +639,8 @@ int main(int argc, char *argv[])
                 if (favorability_add)
                 {
                     get_character_mood(novel, character_id, avatar_path, tachie_path, favorability_add);
+                    snprintf(use_avatar_path, sizeof(use_avatar_path), "%s%s", path, avatar_path);
+                    snprintf(use_tachie_path, sizeof(use_tachie_path), "%s%s", path, tachie_path);
                 }
 
                 draw_conversation(renderer, font, use_background_path, use_avatar_path, use_tachie_path, character_name, dialogue_text);
@@ -637,10 +654,18 @@ int main(int argc, char *argv[])
         }
         if (mode == MODE_BAG)
         {
+            for(int32_t i = 0; i < item_num; i++)
+            {
+                snprintf(use_item_path[i], sizeof(use_item_path[i]), "%s%s", path, items_img_path[i]);
+            }
             draw_bag(renderer, font, items_text, use_item_path, item_num, item_select);
         }
         if (mode == MODE_FAVORABILITY)
         {
+            for(int32_t i = 0; i < character_num; i++)
+            {
+                snprintf(use_character_path[i], sizeof(use_character_path[i]), "%s%s", path, character_img_path[i]);
+            }
             draw_favorability(renderer, font, character_names, use_character_path, favorability, character_num, character_select);
         }
         // present
