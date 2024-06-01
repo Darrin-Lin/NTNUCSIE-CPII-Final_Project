@@ -472,7 +472,7 @@ int8_t draw_setting_bar(SDL_Renderer *renderer, TTF_Font *font, enum setting_bar
 
 int8_t draw_bag(SDL_Renderer *renderer, TTF_Font *font, char items[MAX_ITEM_NUM][1024], char items_img_path[MAX_ITEM_NUM][1024], int32_t item_num, int32_t item_select)
 {
-    if (renderer == NULL || font == NULL || items == NULL || items_img_path == NULL || item_num == 0)
+    if (renderer == NULL || font == NULL || items == NULL || items_img_path == NULL )
     {
         return -1;
     }
@@ -645,5 +645,115 @@ int8_t draw_item_get(SDL_Renderer *renderer, TTF_Font *title_font, char *item_na
     SDL_DestroyTexture(item_img_texture);
     SDL_FreeSurface(item_text_surface);
     SDL_FreeSurface(item_img_surface);
+    return 0;
+}
+
+int8_t draw_favorability(SDL_Renderer *renderer, TTF_Font *font, char characters_name[MAX_CHARACTER_NUM][1024], char characters_img_path[MAX_CHARACTER_NUM][1024],int32_t characters_favorability[MAX_CHARACTER_NUM] , int32_t characters_num, int32_t char_select)
+{
+    if (renderer == NULL || font == NULL || characters_name == NULL || characters_img_path == NULL || characters_favorability == NULL )
+    {
+        debug_print("error:%d,%d,%d,%d,%d\n", renderer, font, characters_name, characters_img_path, characters_num);
+        return -1;
+    }
+    if (characters_num > MAX_CHARACTER_NUM)
+    {
+        debug_print("characters_num is too large.\n");
+        return -1;
+    }
+    int32_t character_height = WINDOW_HEIGHT / (MAX_CHARACTER_NUM/CHARACTERS_COL_NUM);
+    for (int32_t i = 0; i < MAX_CHARACTER_NUM ; i++)
+    {
+        SDL_Surface *character_surface = NULL;
+        SDL_Texture *character_texture = NULL;
+        SDL_Surface *character_img_surface = NULL;
+        SDL_Texture *character_img_texture = NULL;
+        int32_t row = i % (MAX_CHARACTER_NUM / CHARACTERS_COL_NUM);
+        int32_t col = i / (MAX_CHARACTER_NUM / CHARACTERS_COL_NUM);
+        SDL_Rect character_img_rect = {col * (WINDOW_WIDTH / CHARACTERS_COL_NUM), row * character_height, character_height, character_height};
+        SDL_Rect character_rect = {col * (WINDOW_WIDTH / CHARACTERS_COL_NUM) + character_height, row * character_height, WINDOW_WIDTH / CHARACTERS_COL_NUM - character_height, character_height};
+        SDL_Color color = TEXT_COLOR;
+        if (i < characters_num)
+        {
+            character_surface = TTF_RenderUTF8_Blended_Wrapped(font, characters_name[i], color, (WINDOW_WIDTH / CHARACTERS_COL_NUM - character_height));
+            if (character_surface == NULL)
+            {
+                debug_print("can't create character_surface.\n");
+                return -1;
+            }
+            character_texture = SDL_CreateTextureFromSurface(renderer, character_surface);
+            if (character_texture == NULL)
+            {
+                debug_print("can't create character_texture.\n");
+                SDL_FreeSurface(character_surface);
+                return -1;
+            }
+            character_img_surface = IMG_Load(characters_img_path[i]);
+            if (character_img_surface == NULL)
+            {
+                debug_print("can't create character_img_surface.\n");
+                SDL_FreeSurface(character_surface);
+                SDL_DestroyTexture(character_texture);
+                return -1;
+            }
+            character_img_texture = SDL_CreateTextureFromSurface(renderer, character_img_surface);
+            if (character_img_texture == NULL)
+            {
+                debug_print("can't create character_img_texture.\n");
+                SDL_FreeSurface(character_surface);
+                SDL_DestroyTexture(character_texture);
+                SDL_FreeSurface(character_img_surface);
+                return -1;
+            }
+        }
+        SDL_Color character_bg_color = CHARACTERS_COLOR;
+        SDL_Color character_select_color = CHARACTERS_SELECT_COLOR;
+        SDL_SetRenderDrawColor(renderer, character_bg_color.r, character_bg_color.g, character_bg_color.b, character_bg_color.a);
+        SDL_RenderFillRect(renderer, &character_img_rect);
+        SDL_SetRenderDrawColor(renderer, character_select_color.r, character_select_color.g, character_select_color.b, character_select_color.a);
+        SDL_RenderDrawRect(renderer, &character_img_rect);
+        if (i == char_select)
+        {
+            character_bg_color = character_select_color;
+        }
+        SDL_SetRenderDrawColor(renderer, character_bg_color.r, character_bg_color.g, character_bg_color.b, character_bg_color.a);
+        SDL_RenderFillRect(renderer, &character_rect);
+        SDL_SetRenderDrawColor(renderer, character_select_color.r, character_select_color.g, character_select_color.b, character_select_color.a);
+        SDL_RenderDrawRect(renderer, &character_rect);
+        if (i < characters_num)
+        {   
+            SDL_Color character_fac_color = CHARACTERS_FAVORABILITY_COLOR;
+            SDL_SetRenderDrawColor(renderer, character_fac_color.r, character_fac_color.g, character_fac_color.b, character_fac_color.a);
+            character_rect.w = character_rect.w*((double)characters_favorability[i]/MAX_FACORABILITY);
+            SDL_RenderFillRect(renderer, &character_rect);
+            character_rect.w = character_surface->w;
+            character_rect.h = character_surface->h>character_height?character_height:character_surface->h;
+            character_rect.x += (WINDOW_WIDTH / CHARACTERS_COL_NUM - character_height) / 2 - character_surface->w / 2;
+            character_rect.y = row* character_height + character_height / 2 - character_rect.h / 2;
+            SDL_RenderCopy(renderer, character_texture, NULL, &character_rect);
+            SDL_DestroyTexture(character_texture);
+            character_texture = NULL;
+            double scale = (double)character_height / character_img_surface->h;
+            if (character_img_surface->w > character_img_surface->h)
+            {
+                scale = (double)character_height / character_img_surface->w;
+            }
+            character_img_rect.w = character_img_surface->w * scale;
+            character_img_rect.h = character_img_surface->h * scale;
+            character_img_rect.x = col * (WINDOW_WIDTH / CHARACTERS_COL_NUM) + character_height / 2 - character_img_rect.w / 2;
+            character_img_rect.y = row * character_height + character_height / 2 - character_img_rect.h / 2;
+            SDL_RenderCopy(renderer, character_img_texture, NULL, &character_img_rect);
+            SDL_DestroyTexture(character_img_texture);
+            character_img_texture = NULL;
+            SDL_FreeSurface(character_img_surface);
+            character_img_surface = NULL;
+            SDL_FreeSurface(character_surface);
+            character_surface = NULL;
+        }
+        if (character_texture != NULL || character_surface != NULL)
+        {
+            debug_print("error:%d,%d,%d\n", character_texture, character_surface);
+        }
+            
+    }
     return 0;
 }

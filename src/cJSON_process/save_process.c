@@ -209,6 +209,7 @@ int8_t update_favorability_add(cJSON *save, char *character_id, int32_t favorabi
 
 int8_t update_favorability_get(cJSON *save, char *character_id, int32_t *favorability)
 {
+    int8_t new_char = 0;
     if (save == NULL || character_id == NULL)
     {
         debug_print("save or character_id is empty\n");
@@ -217,11 +218,12 @@ int8_t update_favorability_get(cJSON *save, char *character_id, int32_t *favorab
     cJSON *favorability_json = cJSON_GetObjectItem(save, "favorability");
     if (favorability_json == NULL)
     {
-        debug_print("favorability not empty\n");
+        debug_print("favorability empty\n");
         cJSON_AddItemToObject(save, "favorability", cJSON_CreateObject());
         favorability_json = cJSON_GetObjectItem(save, "favorability");
         cJSON_AddNumberToObject(favorability_json, character_id, 0);
         *favorability = 0;
+        new_char = 1;
     }
     else
     {
@@ -230,6 +232,7 @@ int8_t update_favorability_get(cJSON *save, char *character_id, int32_t *favorab
         {
             debug_print("character not found\n");
             cJSON_AddNumberToObject(favorability_json, character_id, 0);
+            new_char = 1;
         }
         else if(cJSON_IsNumber(character))
         {
@@ -256,7 +259,7 @@ int8_t update_favorability_get(cJSON *save, char *character_id, int32_t *favorab
         }
 
     }
-    return 0;
+    return new_char;
 }
 int8_t update_favorability_set(cJSON *save, char *character_id, int32_t favorability)
 {

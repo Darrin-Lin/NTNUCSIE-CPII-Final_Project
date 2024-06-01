@@ -104,6 +104,7 @@ text = "情感變化是一個很好的功能，可以讓遊戲更加引人入勝
 [[dialogue.emotion_implementation.options]]
 text = "聽起來很棒，我們會試試看。"
 next = "finalize_ideas"
+favorability_add = +10
 [[dialogue.emotion_implementation.options]]
 text = "這樣會不會太複雜了？"
 next = "simplify_discussion"

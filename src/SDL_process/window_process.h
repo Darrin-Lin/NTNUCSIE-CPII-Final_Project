@@ -94,6 +94,25 @@
         0x00, 0x00, 0x00, 0xFF \
     }
 
+#define CHARACTERS_COL_NUM 3
+#define CHARACTERS_COLOR       \
+    {                          \
+        0xAA, 0xAA, 0xAA, 0xAA \
+    }
+#define CHARACTERS_SELECT_COLOR \
+    {                           \
+        0xFF, 0xFF, 0xFF, 0xFF  \
+    }
+#define CHARACTERS_BG_COLOR    \
+    {                          \
+        0x00, 0x00, 0xAA, 0xFF \
+    }
+#define CHARACTERS_FAVORABILITY_COLOR \
+    {                           \
+        0xFF, 0xAA, 0xAA, 0xFF  \
+    }
+
+
 enum title_position
 {
     TITLE_TOP = 0,
@@ -122,3 +141,4 @@ int8_t draw_tachie(SDL_Renderer *renderer, char *tachie_path);
 int8_t draw_setting_bar(SDL_Renderer *renderer, TTF_Font *font, enum setting_bar_option option_choose);
 int8_t draw_bag(SDL_Renderer *renderer, TTF_Font *font, char items[MAX_ITEM_NUM][1024], char items_img_path[MAX_ITEM_NUM][1024], int32_t item_num, int32_t item_select);
 int8_t draw_item_get(SDL_Renderer *renderer, TTF_Font *title_font, char *item_name, char *item_img_path);
+int8_t draw_favorability(SDL_Renderer *renderer, TTF_Font *font, char characters_name[MAX_CHARACTER_NUM][1024], char characters_img_path[MAX_CHARACTER_NUM][1024],int32_t characters_favorability[MAX_CHARACTER_NUM] , int32_t characters_num, int32_t char_select);

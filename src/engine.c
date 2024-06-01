@@ -62,14 +62,19 @@ int main(int argc, char *argv[])
     char end_id[1024] = {0};
     char items_id[MAX_ITEM_NUM][1024] = {0};
     char tmp_item_id[1024] = {0};
+    char character_ids[MAX_CHARACTER_NUM][1024] = {0};
+    char character_names[MAX_CHARACTER_NUM][1024] = {0};
+    char character_img_path[MAX_CHARACTER_NUM][1024] = {0};
+
     // using path
-    char use_novel_path[1024] = "./res/novel.toml";                                            // {0};
-    char use_background_path[1024] = "./res/img/bg.jpg";                                       // {0};
-    char use_avatar_path[1024] = "./res/img/avatar.png";                                       // {0};
-    char use_tachie_path[1024] = "./res/img/avatar.png";                                       // {0};
-    char use_ttf_path[1024] = "./res/fonts/font.ttf";                                          // {0};// NotoSansTC-Medium.ttf
-    char use_save_path[1024] = "./res/save.json";                                              // {0};
-    char use_item_path[MAX_ITEM_NUM][1024] = {"./res/img/avatar.png", "./res/img/avatar.png"}; // {0};
+    char use_novel_path[1024] = "./res/novel.toml";                                                      // {0};
+    char use_background_path[1024] = "./res/img/bg.jpg";                                                 // {0};
+    char use_avatar_path[1024] = "./res/img/avatar.png";                                                 // {0};
+    char use_tachie_path[1024] = "./res/img/avatar.png";                                                 // {0};
+    char use_ttf_path[1024] = "./res/fonts/font.ttf";                                                    // {0};// NotoSansTC-Medium.ttf
+    char use_save_path[1024] = "./res/save.json";                                                        // {0};
+    char use_item_path[MAX_ITEM_NUM][1024] = {"./res/img/avatar.png", "./res/img/avatar.png"};           // {0};
+    char use_character_path[MAX_CHARACTER_NUM][1024] = {"./res/img/avatar.png", "./res/img/avatar.png"}; // {0};
 
     // selection
     toml_array_t *options = NULL;
@@ -80,6 +85,10 @@ int main(int argc, char *argv[])
     int32_t item_num = 0;
     int32_t item_select = 0;
     int32_t favorability_add = 0;
+    int32_t character_num = 0;
+    int32_t character_select = 0;
+    int32_t favorability[MAX_FACORABILITY] = {0};
+
     // temp data
     toml_datum_t tmp_datum;
     // set status
@@ -317,13 +326,36 @@ int main(int argc, char *argv[])
                         if (stat == STATUS_EVENT)
                         {
                             update_event(save, event_id);
-                            if(strlen(tmp_item_id) > 0)
-                            update_add_item(save, tmp_item_id);
+                            if (strlen(tmp_item_id) > 0)
+                                update_add_item(save, tmp_item_id);
                         }
-                        if(stat == STATUS_DIALOGUE || stat == STATUS_DIALOGUE_OPTION)
+                        if (stat == STATUS_DIALOGUE || stat == STATUS_DIALOGUE_OPTION)
                         {
                             int32_t favorability_tmp = 0;
-                            update_favorability_get(save, character_id, &favorability_tmp);
+                            if (update_favorability_get(save, character_id, &favorability_tmp) == 1)
+                            {
+                                strncpy(character_ids[character_num], character_id, 1024);
+                                strncpy(character_img_path[character_num], avatar_path, 1024);
+                                character_num++;
+                            }
+                            else
+                            {
+                                int8_t new_name = 1;
+                                for (int32_t i = 0; i < character_num; i++)
+                                {
+                                    if (strncmp(character_ids[i], character_id, 1024) == 0)
+                                    {
+                                        new_name = 0;
+                                        break;
+                                    }
+                                }
+                                if (new_name)
+                                {
+                                    strncpy(character_ids[character_num], character_id, 1024);
+                                    strncpy(character_img_path[character_num], avatar_path, 1024);
+                                    character_num++;
+                                }
+                            }
                         }
                         debug_print("Change status: %d\n", stat);
                         debug_print("Next status: %d\n", next_stat);
@@ -356,6 +388,10 @@ int main(int argc, char *argv[])
                         item_select = ((item_select - 1) + MAX_ITEM_NUM) % MAX_ITEM_NUM;
                         debug_print("Item select: %d\n", item_select);
                     }
+                    if(mode == MODE_FAVORABILITY)
+                    {
+                        character_select = ((character_select - 1) + MAX_CHARACTER_NUM) % MAX_CHARACTER_NUM;
+                    }
                 }
                 if (event.key.keysym.sym == SDLK_DOWN)
                 {
@@ -372,6 +408,10 @@ int main(int argc, char *argv[])
                         item_select = (item_select + 1) % MAX_ITEM_NUM;
                         debug_print("Item select: %d\n", item_select);
                     }
+                    if(mode == MODE_FAVORABILITY)
+                    {
+                        character_select = (character_select + 1) % MAX_CHARACTER_NUM;
+                    }
                 }
                 if (event.key.keysym.sym == SDLK_RIGHT)
                 {
@@ -381,7 +421,11 @@ int main(int argc, char *argv[])
                     }
                     if (mode == MODE_BAG)
                     {
-                        item_select = (item_select + MAX_ITEM_NUM / ITEM_COL_NUM) % MAX_ITEM_NUM;
+                        item_select = (item_select +( MAX_ITEM_NUM / ITEM_COL_NUM)) % MAX_ITEM_NUM;
+                    }
+                    if(mode == MODE_FAVORABILITY)
+                    {
+                        character_select = (character_select + (MAX_CHARACTER_NUM/CHARACTERS_COL_NUM)) % MAX_CHARACTER_NUM;
                     }
                 }
                 if (event.key.keysym.sym == SDLK_LEFT)
@@ -392,7 +436,11 @@ int main(int argc, char *argv[])
                     }
                     if (mode == MODE_BAG)
                     {
-                        item_select = ((item_select - MAX_ITEM_NUM / ITEM_COL_NUM) + MAX_ITEM_NUM) % MAX_ITEM_NUM;
+                        item_select = ((item_select - (MAX_ITEM_NUM / ITEM_COL_NUM)) + MAX_ITEM_NUM) % MAX_ITEM_NUM;
+                    }
+                    if(mode == MODE_FAVORABILITY)
+                    {
+                        character_select = (character_select -(MAX_CHARACTER_NUM/CHARACTERS_COL_NUM)+MAX_CHARACTER_NUM) % MAX_CHARACTER_NUM;
                     }
                 }
                 if (event.key.keysym.sym == SDLK_RETURN)
@@ -425,6 +473,35 @@ int main(int argc, char *argv[])
                         if (setting_bar_select == SETTING_BAR_OPTION_CHARACTERS)
                         {
                             mode = MODE_FAVORABILITY;
+                            character_select = 0;
+                            for(int32_t i = 0; i < character_num; i++)
+                            {
+                                update_favorability_get(save, character_ids[i], &favorability[i]);
+                                toml_table_t *characters = toml_table_in(novel, "character");
+                                toml_datum_t tmp_avatar_path;
+                                toml_datum_t tmp_tachie_path;
+                                get_character(characters, character_ids[i], &tmp_datum,&tmp_avatar_path, &tmp_tachie_path);
+                                if(tmp_datum.ok)
+                                {
+                                    strncpy(character_names[i], tmp_datum.u.s, 1024);
+                                    free(tmp_datum.u.s);
+                                    tmp_datum.ok = 0;
+                                    tmp_datum.u.s = NULL;
+                                }
+                                if(tmp_avatar_path.ok)
+                                {
+                                    strncpy(character_img_path[i], tmp_avatar_path.u.s, 1024);
+                                    free(tmp_avatar_path.u.s);
+                                    tmp_avatar_path.ok = 0;
+                                    tmp_avatar_path.u.s = NULL;
+                                }
+                                if(tmp_tachie_path.ok)
+                                {
+                                    free(tmp_tachie_path.u.s);
+                                    tmp_tachie_path.ok = 0;
+                                    tmp_tachie_path.u.s = NULL;
+                                }
+                            }
                         }
                         if (setting_bar_select == SETTING_BAR_OPTION_BAG)
                         {
@@ -484,14 +561,14 @@ int main(int argc, char *argv[])
         {
             if (stat == STATUS_EVENT)
             {
-                if(strlen(tmp_item_id))
+                if (strlen(tmp_item_id))
                 {
                     char tmp_item_name[1024] = {0};
                     char tmp_item_img_path[1024] = {0};
                     char use_tmp_item_img_path[1024] = "./res/img/avatar.png"; // {0};
                     toml_table_t *items = toml_table_in(novel, "item");
                     get_items(items, tmp_item_id, tmp_item_name, tmp_item_img_path);
-                    strtok(tmp_item_name,":");
+                    strtok(tmp_item_name, ":");
                     draw_item_get(renderer, title_font, tmp_item_name, use_tmp_item_img_path);
                 }
                 draw_title(renderer, title_font, event_id, TITLE_BOTTOM);
@@ -548,7 +625,7 @@ int main(int argc, char *argv[])
                 {
                     get_character_mood(novel, character_id, avatar_path, tachie_path, favorability_add);
                 }
-                
+
                 draw_conversation(renderer, font, use_background_path, use_avatar_path, use_tachie_path, character_name, dialogue_text);
                 draw_options(renderer, font, option_text, option_num, option_choose);
             }
@@ -561,6 +638,10 @@ int main(int argc, char *argv[])
         if (mode == MODE_BAG)
         {
             draw_bag(renderer, font, items_text, use_item_path, item_num, item_select);
+        }
+        if (mode == MODE_FAVORABILITY)
+        {
+            draw_favorability(renderer, font, character_names, use_character_path, favorability, character_num, character_select);
         }
         // present
         SDL_RenderPresent(renderer);

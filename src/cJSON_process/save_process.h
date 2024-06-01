@@ -4,9 +4,10 @@
 
 #pragma once
 
-#define MAX_ITEM_NUM 10 // even number
+#define MAX_ITEM_NUM 10
 #define MAX_FACORABILITY 100
 #define MIN_FACORABILITY 0
+#define MAX_CHARACTER_NUM 30
 
 int8_t update_save_file(char *save_path, cJSON *save);
 int8_t update_event(cJSON *save, char *event_id);
