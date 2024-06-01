@@ -19,13 +19,21 @@ background = "assets/scene/meeting-room.bmp"
 [character.classmate]
 name = "Alice (your classmate)"
 avatar = "assets/character/alice/avatar.bmp"
+avatar_happy = "assets/character/alice/avatar_happy.bmp"
+avatar_sad = "assets/character/alice/avatar_sad.bmp"
 tachie = "assets/character/alice/tachie.bmp"
+tachie_happy = "assets/character/alice/tachie_happy.bmp"
+tachie_sad = "assets/character/alice/tachie_sad.bmp"
 
 [character.ta]
 location = "meeting-room"
 name = "Teaching Assistant"
 avatar = "assets/character/ta/avatar.bmp"
+avatar_happy = "assets/character/ta/avatar_happy.bmp"
+avatar_sad = "assets/character/ta/avatar_sad.bmp"
 tachie = "assets/character/ta/tachie.bmp"
+tachie_happy = "assets/character/ta/tachie_happy.bmp"
+tachie_sad = "assets/character/ta/tachie_sad.bmp"
 
 [item.vision-pro]
 name = "Vision Pro"
@@ -106,6 +114,8 @@ text = "多重結局是一個很好的方式來增加遊戲的重玩價值。你
 [[dialogue.multiple_endings.options]]
 text = "這個主意很好，我們會加入這個功能。"
 next = "finalize_ideas"
+favorability_add = +1
+
 [[dialogue.multiple_endings.options]]
 text = "可能需要一點時間來實現這個想法。"
 next = "time_management"

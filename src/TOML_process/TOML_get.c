@@ -375,6 +375,141 @@ int8_t get_character(toml_table_t *characters, const char *character_id, toml_da
     return 0;
 }
 
+int8_t get_character_mood(toml_table_t *characters, const char *character_id, char *avatar_path, char *tachie_path, int32_t favorability_add)
+{
+    toml_table_t *character = toml_table_in(characters, character_id);
+    if (!character)
+    {
+        debug_print("character is NULL");
+        return -1;
+    }
+    toml_datum_t avatar;
+    toml_datum_t tachie;
+    if (favorability_add > 0)
+    {
+        avatar = toml_string_in(character, "avatar_happy");
+
+        tachie = toml_string_in(character, "tachie_happy");
+        if (avatar.ok && tachie.ok)
+        {
+            strncpy(avatar_path, avatar.u.s, 1024);
+            strncpy(tachie_path, tachie.u.s, 1024);
+            free(avatar.u.s);
+            free(tachie.u.s);
+            avatar.u.s = NULL;
+            tachie.u.s = NULL;
+            avatar.ok = 0;
+            tachie.ok = 0;
+            return 0;
+        }
+        else
+        {
+            if (avatar.ok == 0)
+            {
+                debug_print("No avatar_happy.\n");
+            }
+            else
+            {
+                free(avatar.u.s);
+                avatar.u.s = NULL;
+                avatar.ok = 0;
+            }
+            if (tachie.ok == 0)
+            {
+                debug_print("No tachie_happy.\n");
+            }
+            else
+            {
+                free(tachie.u.s);
+                tachie.u.s = NULL;
+                tachie.ok = 0;
+            }
+            return 1;
+        }
+    }
+    else if (favorability_add < 0)
+    {
+        avatar = toml_string_in(character, "avatar_sad");
+        tachie = toml_string_in(character, "tachie_sad");
+        if (avatar.ok && tachie.ok)
+        {
+            strncpy(avatar_path, avatar.u.s, 1024);
+            strncpy(tachie_path, tachie.u.s, 1024);
+            free(avatar.u.s);
+            free(tachie.u.s);
+            avatar.u.s = NULL;
+            tachie.u.s = NULL;
+            avatar.ok = 0;
+            tachie.ok = 0;
+            return 0;
+        }
+        else
+        {
+            if (avatar.ok == 0)
+            {
+                debug_print("No avatar_sad.\n");
+            }
+            else
+            {
+                free(avatar.u.s);
+                avatar.u.s = NULL;
+                avatar.ok = 0;
+            }
+            if (tachie.ok == 0)
+            {
+                debug_print("No tachie_sad.\n");
+            }
+            else
+            {
+                free(tachie.u.s);
+                tachie.u.s = NULL;
+                tachie.ok = 0;
+            }
+            return 1;
+        }
+    }
+    else
+    {
+        avatar = toml_string_in(character, "avatar");
+        tachie = toml_string_in(character, "tachie");
+        if (avatar.ok && tachie.ok)
+        {
+            strncpy(avatar_path, avatar.u.s, 1024);
+            strncpy(tachie_path, tachie.u.s, 1024);
+            free(avatar.u.s);
+            free(tachie.u.s);
+            avatar.u.s = NULL;
+            tachie.u.s = NULL;
+            avatar.ok = 0;
+            tachie.ok = 0;
+            return 0;
+        }
+        else
+        {
+            if (avatar.ok == 0)
+            {
+                debug_print("No avatar.\n");
+            }
+            else
+            {
+                free(avatar.u.s);
+                avatar.u.s = NULL;
+                avatar.ok = 0;
+            }
+            if (tachie.ok == 0)
+            {
+                debug_print("No tachie.\n");
+            }
+            else
+            {
+                free(tachie.u.s);
+                tachie.u.s = NULL;
+                tachie.ok = 0;
+            }
+            return -1;
+        }
+    }
+}
 int8_t get_dialogue(toml_table_t *dialogues, const char *dialogue_id, toml_datum_t *dialogue_character, toml_datum_t *dialogue_text, toml_array_t **options)
 {
     toml_table_t *dialogue = toml_table_in(dialogues, dialogue_id);

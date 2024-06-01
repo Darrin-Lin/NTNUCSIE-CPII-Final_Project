@@ -63,12 +63,12 @@ int main(int argc, char *argv[])
     char items_id[MAX_ITEM_NUM][1024] = {0};
     char tmp_item_id[1024] = {0};
     // using path
-    char use_novel_path[1024] = "./res/novel.toml";                                    // {0};
-    char use_background_path[1024] = "./res/img/bg.jpg";                               // {0};
-    char use_avatar_path[1024] = "./res/img/avatar.png";                               // {0};
-    char use_tachie_path[1024] = "./res/img/avatar.png";                               // {0};
-    char use_ttf_path[1024] = "./res/fonts/font.ttf";                                  // {0};// NotoSansTC-Medium.ttf
-    char use_save_path[1024] = "./res/save.json";                                      // {0};
+    char use_novel_path[1024] = "./res/novel.toml";                                            // {0};
+    char use_background_path[1024] = "./res/img/bg.jpg";                                       // {0};
+    char use_avatar_path[1024] = "./res/img/avatar.png";                                       // {0};
+    char use_tachie_path[1024] = "./res/img/avatar.png";                                       // {0};
+    char use_ttf_path[1024] = "./res/fonts/font.ttf";                                          // {0};// NotoSansTC-Medium.ttf
+    char use_save_path[1024] = "./res/save.json";                                              // {0};
     char use_item_path[MAX_ITEM_NUM][1024] = {"./res/img/avatar.png", "./res/img/avatar.png"}; // {0};
 
     // selection
@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
     enum setting_bar_option setting_bar_select = 0;
     int32_t item_num = 0;
     int32_t item_select = 0;
+    int32_t favorability_add = 0;
     // temp data
     toml_datum_t tmp_datum;
     // set status
@@ -226,7 +227,7 @@ int main(int argc, char *argv[])
                     if (mode == MODE_START)
                     {
                         mode = MODE_NOVEL;
-                        int8_t change = change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, scene_name, character_name, dialogue_text, end_text, event_id, scene_id, character_id, dialogue_id,tmp_item_id ,end_id, &options, option_choose);
+                        int8_t change = change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, scene_name, character_name, dialogue_text, end_text, event_id, scene_id, character_id, dialogue_id, tmp_item_id, end_id, &options, option_choose);
                         if (change == -1)
                         {
                             debug_print("Error change status %d\n", stat);
@@ -246,6 +247,8 @@ int main(int argc, char *argv[])
                             option_choose = 0;
                             option_num = 0;
                             toml_table_t *options_txt = toml_table_at(options, option_choose);
+                            update_favorability_add(save, character_id, favorability_add);
+                            favorability_add = 0;
                             if (options_txt == NULL)
                             {
                                 debug_print("No option.\n");
@@ -289,7 +292,7 @@ int main(int argc, char *argv[])
                                 return -1;
                             }
                         }
-                        int8_t change = change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, scene_name, character_name, dialogue_text, end_text, event_id, scene_id, character_id, dialogue_id,tmp_item_id, end_id, &options, option_choose);
+                        int8_t change = change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, scene_name, character_name, dialogue_text, end_text, event_id, scene_id, character_id, dialogue_id, tmp_item_id, end_id, &options, option_choose);
                         if (change == -1)
                         {
                             debug_print("Error change status %d\n", stat);
@@ -311,9 +314,14 @@ int main(int argc, char *argv[])
                                 return -1;
                             }
                         }
-                        if(stat == STATUS_EVENT && strlen(tmp_item_id)>0)
+                        if (stat == STATUS_EVENT && strlen(tmp_item_id) > 0)
                         {
                             update_add_item(save, tmp_item_id);
+                        }
+                        if(stat == STATUS_DIALOGUE || stat == STATUS_DIALOGUE_OPTION)
+                        {
+                            int32_t favorability_tmp = 0;
+                            update_favorability_get(save, character_id, &favorability_tmp);
                         }
                         debug_print("Change status: %d\n", stat);
                         debug_print("Next status: %d\n", next_stat);
@@ -337,13 +345,13 @@ int main(int argc, char *argv[])
 
                         if (stat == STATUS_DIALOGUE_OPTION)
                         {
-                            option_choose = ((option_choose - 1)+option_num)%option_num;
+                            option_choose = ((option_choose - 1) + option_num) % option_num;
                             debug_print("Option choose: %d\n", option_choose);
                         }
                     }
                     if (mode == MODE_BAG)
                     {
-                        item_select = ((item_select - 1) +MAX_ITEM_NUM)%MAX_ITEM_NUM;
+                        item_select = ((item_select - 1) + MAX_ITEM_NUM) % MAX_ITEM_NUM;
                         debug_print("Item select: %d\n", item_select);
                     }
                 }
@@ -378,11 +386,11 @@ int main(int argc, char *argv[])
                 {
                     if (mode == MODE_NOVEL)
                     {
-                        setting_bar_select = ((setting_bar_select - 1)+ SETTING_BAR_OPTION_NUM) % SETTING_BAR_OPTION_NUM;
+                        setting_bar_select = ((setting_bar_select - 1) + SETTING_BAR_OPTION_NUM) % SETTING_BAR_OPTION_NUM;
                     }
                     if (mode == MODE_BAG)
                     {
-                        item_select = ((item_select - MAX_ITEM_NUM / ITEM_COL_NUM) + MAX_ITEM_NUM)%MAX_ITEM_NUM ;
+                        item_select = ((item_select - MAX_ITEM_NUM / ITEM_COL_NUM) + MAX_ITEM_NUM) % MAX_ITEM_NUM;
                     }
                 }
                 if (event.key.keysym.sym == SDLK_RETURN)
@@ -420,24 +428,23 @@ int main(int argc, char *argv[])
                         {
                             mode = MODE_BAG;
                             item_select = 0;
-                            if(update_get_item_num(save, &item_num) == -1)
+                            if (update_get_item_num(save, &item_num) == -1)
                             {
                                 debug_print("save error.\n");
                                 return -1;
                             }
                             toml_table_t *items = toml_table_in(novel, "item");
-                            for(int32_t i = 0; i < item_num; i++)
+                            for (int32_t i = 0; i < item_num; i++)
                             {
                                 update_get_item_id(save, i, items_id[i]);
                                 get_items(items, items_id[i], items_text[i], items_img_path[i]);
                             }
-
                         }
                     }
                 }
-                if(event.key.keysym.sym == SDLK_ESCAPE)
+                if (event.key.keysym.sym == SDLK_ESCAPE)
                 {
-                    if(mode == MODE_HELP || mode == MODE_FAVORABILITY || mode == MODE_BAG || mode == MODE_SETTING)
+                    if (mode == MODE_HELP || mode == MODE_FAVORABILITY || mode == MODE_BAG || mode == MODE_SETTING)
                     {
                         mode = MODE_NOVEL;
                     }
@@ -477,14 +484,14 @@ int main(int argc, char *argv[])
             {
                 update_event(save, event_id);
                 draw_title(renderer, title_font, event_id, TITLE_BOTTOM);
-                //draw 
+                // draw
             }
             if (stat == STATUS_SCENE)
             {
                 draw_background(renderer, use_background_path);
                 draw_title(renderer, title_font, scene_name, TITLE_CENTER);
             }
-            if (stat == STATUS_DIALOGUE || stat == STATUS_DIALOGUE_OPTION)
+            if (stat == STATUS_DIALOGUE)
             {
                 draw_conversation(renderer, font, use_background_path, use_avatar_path, use_tachie_path, character_name, dialogue_text);
             }
@@ -511,7 +518,27 @@ int main(int argc, char *argv[])
                         debug_print("No option.\n");
                         return -1;
                     }
+                    if (i == option_choose)
+                    {
+                        tmp_datum = toml_int_in(options_txt, "favorability_add");
+                        if (tmp_datum.ok)
+                        {
+                            favorability_add = tmp_datum.u.i;
+                            tmp_datum.ok = 0;
+                            tmp_datum.u.i = 0;
+                        }
+                        else
+                        {
+                            favorability_add = 0;
+                        }
+                    }
                 }
+                if (favorability_add)
+                {
+                    get_character_mood(novel, character_id, avatar_path, tachie_path, favorability_add);
+                }
+                
+                draw_conversation(renderer, font, use_background_path, use_avatar_path, use_tachie_path, character_name, dialogue_text);
                 draw_options(renderer, font, option_text, option_num, option_choose);
             }
             if (stat == STATUS_END)
