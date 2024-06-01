@@ -22,3 +22,4 @@ int8_t get_character(toml_table_t *characters, const char *character_id, toml_da
 int8_t get_event(toml_table_t *events, const char *event_id, toml_datum_t *event_scene, toml_datum_t *event_dialogue);
 int8_t get_dialogue(toml_table_t *dialogues, const char *dialogue_id, toml_datum_t *dialogue_character, toml_datum_t *dialogue_text, toml_array_t **options);
 int8_t get_ending(toml_table_t *ends, const char *end_id, char end_title[1024], char end_text[1024], char end_bg_path[1024]);
+int8_t get_items(toml_table_t *items, const char *item_id, char *item_name_and_text, char *item_img_path);

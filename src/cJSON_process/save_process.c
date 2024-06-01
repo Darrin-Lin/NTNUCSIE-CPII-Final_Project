@@ -144,6 +144,35 @@ int8_t update_get_item_num(cJSON *save, int32_t *item_num)
     }
     return 0;
 }
+int8_t update_get_item_id(cJSON *save, int32_t item_index, char *item_id)
+{
+    if (save == NULL || item_id == NULL)
+    {
+        debug_print("save or item_id is empty\n");
+        return -1;
+    }
+    cJSON *items = cJSON_GetObjectItem(save, "item");
+    if (items == NULL)
+    {
+        debug_print("item is empty\n");
+        return -1;
+    }
+    else
+    {
+        cJSON *item = cJSON_GetArrayItem(items, item_index);
+        if (item == NULL)
+        {
+            debug_print("item not found\n");
+            return -1;
+        }
+        else
+        {
+            strcpy(item_id, item->valuestring);
+            return 0;
+        }
+    }
+    return -1;
+}
 
 
 int8_t update_favorability_add(cJSON *save, char *character_id, int32_t favorability_add)

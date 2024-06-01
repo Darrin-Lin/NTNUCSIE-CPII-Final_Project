@@ -463,3 +463,67 @@ int8_t get_ending(toml_table_t *ends, const char *end_id, char end_title[1024], 
     }
     return 0;
 }
+
+int8_t get_items(toml_table_t *items, const char *item_id, char *item_name_and_text, char *item_img_path)
+{
+    toml_table_t *item = toml_table_in(items, item_id);
+    if (!item)
+    {
+        debug_print("item is NULL\n");
+        return -1;
+    }
+    toml_datum_t name = toml_string_in(item, "name");
+    toml_datum_t description = toml_string_in(item, "description");
+    toml_datum_t icon = toml_string_in(item, "icon");
+
+    if (name.ok && description.ok && icon.ok)
+    {
+        snprintf(item_name_and_text,1024, "%s: %s", name.u.s, description.u.s);
+        strncpy(item_img_path, icon.u.s, 1024);
+        free(name.u.s);
+        free(description.u.s);
+        free(icon.u.s);
+        name.u.s = NULL;
+        description.u.s = NULL;
+        icon.u.s = NULL;
+        name.ok = 0;
+        description.ok = 0;
+        icon.ok = 0;
+    }
+    else
+    {
+        if (name.ok == 0)
+        {
+            debug_print("No name.\n");
+        }
+        else
+        {
+            free(name.u.s);
+            name.u.s = NULL;
+            name.ok = 0;
+        }
+        if (description.ok == 0)
+        {
+            debug_print("No description.\n");
+        }
+        else
+        {
+            free(description.u.s);
+            description.u.s = NULL;
+            description.ok = 0;
+        }
+        if (icon.ok == 0)
+        {
+            debug_print("No icon.\n");
+        }
+        else
+        {
+            free(icon.u.s);
+            icon.u.s = NULL;
+            icon.ok = 0;
+        }
+        return -1;
+    }
+
+    return 0;
+}

@@ -51,26 +51,35 @@ int main(int argc, char *argv[])
     char character_name[1024] = {0};
     char dialogue_text[1024] = {0};
     char end_text[4096] = {0};
+    char items_text[MAX_ITEM_NUM][1024] = {0};
+    char items_img_path[MAX_ITEM_NUM][1024] = {0};
+
     // init all id
     char event_id[1024] = {0};
     char scene_id[1024] = {0};
     char character_id[1024] = {0};
     char dialogue_id[1024] = {0};
     char end_id[1024] = {0};
+    char items_id[MAX_ITEM_NUM][1024] = {0};
 
     // using path
-    char use_novel_path[1024] = "./res/novel.toml";      // {0};
-    char use_background_path[1024] = "./res/img/bg.jpg"; // {0};
-    char use_avatar_path[1024] = "./res/img/avatar.png"; // {0};
-    char use_tachie_path[1024] = "./res/img/avatar.png"; // {0};
-    char use_ttf_path[1024] = "./res/fonts/font.ttf";    // {0};// NotoSansTC-Medium.ttf
-    char use_save_path[1024] = "./res/save.json";        // {0};
+    char use_novel_path[1024] = "./res/novel.toml";                                    // {0};
+    char use_background_path[1024] = "./res/img/bg.jpg";                               // {0};
+    char use_avatar_path[1024] = "./res/img/avatar.png";                               // {0};
+    char use_tachie_path[1024] = "./res/img/avatar.png";                               // {0};
+    char use_ttf_path[1024] = "./res/fonts/font.ttf";                                  // {0};// NotoSansTC-Medium.ttf
+    char use_save_path[1024] = "./res/save.json";                                      // {0};
+    char use_item_path[MAX_ITEM_NUM][1024] = {"./res/img/avatar.png", "./res/img/avatar.png"}; // {0};
 
+    // selection
     toml_array_t *options = NULL;
     char option_text[5][1024] = {0};
     int32_t option_num = 0;
     int32_t option_choose = 0;
     enum setting_bar_option setting_bar_select = 0;
+    int32_t item_num = 0;
+    int32_t item_select = 0;
+    // temp data
     toml_datum_t tmp_datum;
     // set status
     enum status stat = 0;
@@ -324,9 +333,14 @@ int main(int argc, char *argv[])
 
                         if (stat == STATUS_DIALOGUE_OPTION)
                         {
-                            option_choose = (option_choose - 1) % option_num;
+                            option_choose = ((option_choose - 1)+option_num)%option_num;
                             debug_print("Option choose: %d\n", option_choose);
                         }
+                    }
+                    if (mode == MODE_BAG)
+                    {
+                        item_select = ((item_select - 1) +MAX_ITEM_NUM)%MAX_ITEM_NUM;
+                        debug_print("Item select: %d\n", item_select);
                     }
                 }
                 if (event.key.keysym.sym == SDLK_DOWN)
@@ -339,6 +353,11 @@ int main(int argc, char *argv[])
                             debug_print("Option choose: %d\n", option_choose);
                         }
                     }
+                    if (mode == MODE_BAG)
+                    {
+                        item_select = (item_select + 1) % MAX_ITEM_NUM;
+                        debug_print("Item select: %d\n", item_select);
+                    }
                 }
                 if (event.key.keysym.sym == SDLK_RIGHT)
                 {
@@ -346,12 +365,20 @@ int main(int argc, char *argv[])
                     {
                         setting_bar_select = (setting_bar_select + 1) % SETTING_BAR_OPTION_NUM;
                     }
+                    if (mode == MODE_BAG)
+                    {
+                        item_select = (item_select + MAX_ITEM_NUM / ITEM_COL_NUM) % MAX_ITEM_NUM;
+                    }
                 }
                 if (event.key.keysym.sym == SDLK_LEFT)
                 {
                     if (mode == MODE_NOVEL)
                     {
-                        setting_bar_select = (setting_bar_select - 1) % SETTING_BAR_OPTION_NUM;
+                        setting_bar_select = ((setting_bar_select - 1)+ SETTING_BAR_OPTION_NUM) % SETTING_BAR_OPTION_NUM;
+                    }
+                    if (mode == MODE_BAG)
+                    {
+                        item_select = ((item_select - MAX_ITEM_NUM / ITEM_COL_NUM) + MAX_ITEM_NUM)%MAX_ITEM_NUM ;
                     }
                 }
                 if (event.key.keysym.sym == SDLK_RETURN)
@@ -388,6 +415,19 @@ int main(int argc, char *argv[])
                         if (setting_bar_select == SETTING_BAR_OPTION_BAG)
                         {
                             mode = MODE_BAG;
+                            item_select = 0;
+                            if(update_get_item_num(save, &item_num) == -1)
+                            {
+                                debug_print("save error.\n");
+                                return -1;
+                            }
+                            toml_table_t *items = toml_table_in(novel, "item");
+                            for(int32_t i = 0; i < item_num; i++)
+                            {
+                                update_get_item_id(save, i, items_id[i]);
+                                get_items(items, items_id[i], items_text[i], items_img_path[i]);
+                            }
+
                         }
                     }
                 }
@@ -467,6 +507,10 @@ int main(int argc, char *argv[])
                 draw_ending(renderer, title_font, font, use_background_path, scene_name, end_text);
             }
             draw_setting_bar(renderer, font, setting_bar_select);
+        }
+        if (mode == MODE_BAG)
+        {
+            draw_bag(renderer, font, items_text, use_item_path, item_num, item_select);
         }
         // present
         SDL_RenderPresent(renderer);
