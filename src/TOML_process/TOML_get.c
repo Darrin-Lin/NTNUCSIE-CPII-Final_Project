@@ -1,8 +1,8 @@
 #include "TOML_get.h"
 
-int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_stat, char background_path[1024], char avatar_path[1024], char tachie_path[1024], char scene_name[1024], char character_name[1024], char dialogue_text[1024], char end_text[4096], char event_id[1024], char scene_id[1024], char character_id[1024], char dialogue_id[1024], char item_id[1024], char end_id[1024], toml_array_t **options, int32_t option_choose)
+int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_stat, char background_path[1024], char avatar_path[1024], char tachie_path[1024], char ending_music_path[1024], char scene_name[1024], char character_name[1024], char dialogue_text[1024], char end_text[4096], char event_id[1024], char scene_id[1024], char character_id[1024], char dialogue_id[1024], char item_id[1024], char end_id[1024], toml_array_t **options, int32_t option_choose)
 {
-    if (novel == NULL || stat == NULL || next_stat == NULL || background_path == NULL || avatar_path == NULL || tachie_path == NULL || scene_name == NULL || character_name == NULL || dialogue_text == NULL || end_text == NULL || event_id == NULL || scene_id == NULL || character_id == NULL || dialogue_id == NULL || item_id == NULL || end_id == NULL || options == NULL)
+    if (novel == NULL || stat == NULL || next_stat == NULL || background_path == NULL || avatar_path == NULL || tachie_path == NULL || ending_music_path == NULL || scene_name == NULL || character_name == NULL || dialogue_text == NULL || end_text == NULL || event_id == NULL || scene_id == NULL || character_id == NULL || dialogue_id == NULL || item_id == NULL || end_id == NULL || options == NULL)
     {
         return -1;
     }
@@ -311,7 +311,7 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
             debug_print("No end.\n");
             return -1;
         }
-        if (get_ending(ends, end_id, scene_name, end_text, background_path) == -1)
+        if (get_ending(ends, end_id, scene_name, end_text, background_path, ending_music_path) == -1)
         {
             return -1;
         }
@@ -544,7 +544,7 @@ int8_t get_dialogue(toml_table_t *dialogues, const char *dialogue_id, toml_datum
     return 0;
 }
 
-int8_t get_ending(toml_table_t *ends, const char *end_id, char end_title[1024], char end_text[4096], char end_bg_path[1024])
+int8_t get_ending(toml_table_t *ends, const char *end_id, char end_title[1024], char end_text[4096], char end_bg_path[1024], char ending_music_path[1024])
 {
     toml_table_t *ending = toml_table_in(ends, end_id);
     if (!ending)
@@ -603,6 +603,18 @@ int8_t get_ending(toml_table_t *ends, const char *end_id, char end_title[1024], 
             end_bg.ok = 0;
         }
         return -1;
+    }
+    toml_datum_t music = toml_string_in(ending, "music");
+    if (music.ok)
+    {
+        strncpy(ending_music_path, music.u.s, 1024);
+        free(music.u.s);
+        music.u.s = NULL;
+        music.ok = 0;
+    }
+    else
+    {
+        strncpy(ending_music_path, "NO_MUSIC", 1024);
     }
     return 0;
 }
