@@ -35,9 +35,20 @@ int8_t change_status(toml_table_t *novel, enum status *stat, enum status *next_s
         tmp_datum = toml_string_in(event, "scene");
         if (tmp_datum.ok)
         {
+            char tmp_scene[1024] = {0};
+            strncpy(tmp_scene, scene_id, 1024);
             strncpy(scene_id, tmp_datum.u.s, 1024);
             *stat = STATUS_EVENT;
-            *next_stat = STATUS_SCENE;
+            if (strncmp(tmp_scene, scene_id, 1024) == 0)
+            {
+                debug_print("same scene\n");
+                *next_stat = STATUS_DIALOGUE;
+            }
+            else
+            {
+                *next_stat = STATUS_SCENE;
+            }
+
             free(tmp_datum.u.s);
             tmp_datum.u.s = NULL;
             tmp_datum.ok = 0;
