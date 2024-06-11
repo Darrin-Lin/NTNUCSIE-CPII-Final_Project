@@ -55,4 +55,7 @@ dkms.conf
 SDL_test
 test_program
 engine
+test_engine
 .*/
+flags
+res/*.py
