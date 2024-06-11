@@ -1,152 +1,241 @@
-name = "Final Project"
-author = "TA"
-start_background = "assets/start.bmp"
+name = "SECRET FILE"
+author = "???"
+start_background = "img/title.png"
 
 [player]
 starter = "start"
 inventory = [
-    "vision-pro",
+    "nothing",
 ]
 
-[scene.library]
-name = "The School Library"
-background = "assets/scene/library.bmp"
+[scene.lobby]
+name = "Lobby"
+background = "img/scene/lobby.png"
 
-[scene.meeting-room]
-name = "The Meeting Room"
-background = "assets/scene/meeting-room.bmp"
+[scene.classroom]
+name = "Classrom"
+background = "img/scene/classroom.png"
 
-[character.classmate]
-name = "Alice (your classmate)"
-avatar = "assets/character/alice/avatar.bmp"
-avatar_happy = "assets/character/alice/avatar_happy.bmp"
-avatar_sad = "assets/character/alice/avatar_sad.bmp"
-tachie = "assets/character/alice/tachie.bmp"
-tachie_happy = "assets/character/alice/tachie_happy.bmp"
-tachie_sad = "assets/character/alice/tachie_sad.bmp"
+[scene.final_stage]
+name = "Final Stage"
+background = "img/scene/final_stage.png"
 
-[character.ta]
-location = "meeting-room"
-name = "Teaching Assistant"
-avatar = "assets/character/ta/avatar.bmp"
-avatar_happy = "assets/character/ta/avatar_happy.bmp"
-avatar_sad = "assets/character/ta/avatar_sad.bmp"
-tachie = "assets/character/ta/tachie.bmp"
-tachie_happy = "assets/character/ta/tachie_happy.bmp"
-tachie_sad = "assets/character/ta/tachie_sad.bmp"
+[character.X]
+name = "ZW5jb2Rl"
+avatar = "img/character/X/X-avatar-normal.png"
+avatar_happy = "img/character/X/X-avatar-happy.png"
+avatar_sad = "img/character/X/X-avatar-sad.png"
+tachie = "img/character/X/X-tachie-normal.png"
+tachie_happy = "img/character/X/X-tachie-happy.png"
+tachie_sad = "img/character/X/X-tachie-sad.png"
 
-[item.vision-pro]
-name = "Vision Pro"
-description = "A spatial computer"
-icon = "assets/item/vision-pro/icon.bmp"
+[character.Y]
+name = "encode"
+avatar = "img/character/Y/Y-avatar-normal.png"
+avatar_happy = "img/character/Y/Y-avatar-happy.png"
+avatar_sad = "img/character/Y/Y-avatar-sad.png"
+tachie = "img/character/Y/Y-tachie-normal.png"
+tachie_happy = "img/character/Y/Y-tachie-happy.png"
+tachie_sad = "img/character/Y/Y-tachie-sad.png"
 
-[item.iPad]
-name = "iPad"
-description = "A tablet computer"
-icon = "assets/item/iPad/icon.bmp"
+[character.Z]
+name = "hash"
+avatar = "img/character/Z/Z-avatar-normal.png"
+avatar_happy = "img/character/Z/Z-avatar-happy.png"
+avatar_sad = "img/character/Z/Z-avatar-sad.png"
+tachie = "img/character/Z/Z-tachie-normal.png"
+tachie_happy = "img/character/Z/Z-tachie-happy.png"
+tachie_sad = "img/character/Z/Z-tachie-sad.png"
+
+
+[item.nothing]
+name = "bm90aGluZw=="
+description = "SXQnIGp1c3Qgbm90aGluZy4="
+icon = "img/item/nothing.jpg"
+
+[item.base64]
+name = "YmFzZTY0"
+description = "5L2g6YCZ5YCLLi4u5bCB5byK6ICF"
+icon = "img/item/base64.jpg"
+
+[item.public_key]
+name = "UHVibGljIEtleShlLG4p"
+description = "(866215411, 2603700683)"
+icon = "img/item/key.jpg"
+
 
 [event.start]
-scene = "library"
-dialogue = "hello"
+scene = "lobby"
+dialogue = "hello_world"
 
-[dialogue.hello]
-character = "classmate"
-text = "嗨！聽說今年的期末專題要做互動式小說引擎喔～"
-[[dialogue.hello.options]]
-text = "哇！太棒了！"
-next = "teamup"
-[[dialogue.hello.options]]
-text = "那是啥鬼？"
-next = "explanation"
+[event.know_ending]
+end = "know"
 
-[dialogue.teamup]
-character = "classmate"
-text = "好，那我們一組吧！想一起來討論看看嗎？"
-[[dialogue.teamup.options]]
-text = "OK，我們去會議室找助教討論吧！"
-event = "change_scene_to_meeting_room"
+[event.advance]
+scene = "lobby"
+dialogue = "ask_crypto_level"
+item = "base64"
 
-[dialogue.explanation]
-character = "classmate"
-text = "就是一個讓你創建和玩你自己故事的遊戲平台。聽起來有點複雜，但應該蠻有趣的！"
-[[dialogue.explanation.options]]
-text = "聽起來不錯，告訴我更多！"
-next = "teamup"
-[[dialogue.explanation.options]]
-text = "好吧，我可能會需要幫助。"
-next = "teamup"
+[event.beginer]
+scene = "classroom"
+dialogue = "tutorial_start"
 
-[event.change_scene_to_meeting_room]
-scene = "meeting-room"
-dialogue = "ta_intro"
-item = "iPad"
+[event.hash_tutorial]
+scene = "classroom"
+dialogue = "hash_tutorial"
 
-[dialogue.ta_intro]
-character = "ta"
-text = "你好！來討論期末專題嗎？"
-[[dialogue.ta_intro.options]]
-text = "是的，我們有一些想法想要詢問。"
-next = "ta_discuss"
+[event.encrypt_tutorial]
+scene = "classroom"
+dialogue = "encrypt_only_tutorial"
 
-[dialogue.ta_discuss]
-character = "ta"
-text = "太好了！請告訴我你們的想法。"
-[[dialogue.ta_discuss.options]]
-text = "我們想加入不同角色的情感變化，這樣會怎樣？"
-next = "emotion_implementation"
-[[dialogue.ta_discuss.options]]
-text = "我們打算探索多重結局的設計。"
-next = "multiple_endings"
+[event.both_tutorial]
+scene = "classroom"
+dialogue = "encrypt_tutorial"
 
-[dialogue.emotion_implementation]
-character = "ta"
-text = "情感變化是一個很好的功能，可以讓遊戲更加引人入勝。你們可以設計一個情感計分系統，透過玩家的選擇來影響角色對玩家的感情。"
-[[dialogue.emotion_implementation.options]]
-text = "聽起來很棒，我們會試試看。"
-next = "finalize_ideas"
+[event.rule_tutorial]
+scene = "final_stage"
+dialogue = "rule_description"
+
+[event.choose_difficulty]
+scene = "final_stage"
+dialogue = "difficulty_select"
+
+[event.normal_selection]
+scene = "final_stage"
+dialogue = "difficulty_normal"
+
+[event.special_selection]
+scene = "final_stage"
+dialogue = "difficulty_select"
+item = "public_key"
+
+[event.warmup_end]
+end = "warmup"
+
+[event.baby_end]
+end = "baby"
+
+[dialogue.hello_world]
+character = "X"
+text = "5LuK5aSp5oiR6KaB5L6G5LuL57S55LiJ56iu5p2x6KW/"
+[[dialogue.hello_world.options]]
+text = "是什麼"
+next = "ask_level"
+favorability_add = +5
+[[dialogue.hello_world.options]]
+text = "哈哈，我已經知道了"
+next = "already_know"
+favorability_add = -100
+
+[dialogue.already_know]
+character = "X"
+text = "ZmxhZyBmb3JtYXQ6IGZsYWd7fQ=="
+[[dialogue.already_know.options]]
+text = "我超電我一定解得出來"
+event = "know_ending"
+
+[dialogue.ask_level]
+character = "X"
+text = "5L2g55+l6YGT5oiR54++5Zyo6Kqq55qE5piv5LuA6bq85ZeO77yf"
+[[dialogue.ask_level.options]]
+text = "當然"
+event = "advance"
+favorability_add = +5
+[[dialogue.ask_level.options]]
+text = "............你說......什麼......"
+event = "beginer"
 favorability_add = +10
-[[dialogue.emotion_implementation.options]]
-text = "這樣會不會太複雜了？"
-next = "simplify_discussion"
 
-[dialogue.multiple_endings]
-character = "ta"
-text = "多重結局是一個很好的方式來增加遊戲的重玩價值。你們應該考慮讓玩家的選擇導向不同的故事路線和結局。"
-[[dialogue.multiple_endings.options]]
-text = "這個主意很好，我們會加入這個功能。"
-next = "finalize_ideas"
-favorability_add = +1
+[dialogue.ask_crypto_level]
+character = "X"
+text = "5L2g55+l6YGTIGVuY3J5cHQg6LefIGhhc2gg5ZeO77yf"
+[[dialogue.ask_crypto_level.options]]
+text = "55+l6YGTIGVuY3J5cHQg6ICM5bey"
+event = "hash_tutorial"
+[[dialogue.ask_crypto_level.options]]
+text = "55+l6YGTIGhhc2gg6ICM5bey"
+event = "encrypt_tutorial"
+[[dialogue.ask_crypto_level.options]]
+text = "6YO95LiN55+l6YGT"
+event = "both_tutorial"
+[[dialogue.ask_crypto_level.options]]
+text = "5oiR6YO955+l6YGT"
+event = "rule_tutorial"
 
-[[dialogue.multiple_endings.options]]
-text = "可能需要一點時間來實現這個想法。"
-next = "time_management"
+[dialogue.tutorial_start]
+character = "X"
+text = "現在我來介紹一下剛才說的是什麼，我剛才說話的都是用 base64 encode 的，而 encoding 是把資料轉成編碼，並沒有加密的效果"
+[[dialogue.tutorial_start.options]]
+text = "好"
+next = "encrypt_tutorial"
 
-[dialogue.finalize_ideas]
-character = "ta"
-text = "很好，你們似乎已經有了一個明確的方向。開始動手做吧，有任何問題可以隨時來找我討論。"
-[[dialogue.finalize_ideas.options]]
-text = "謝謝你的建議！我們會開始實作了。"
-event = "project_start"
+[dialogue.encrypt_tutorial]
+character = "Y"
+text = "加密是把資料轉成另一種形式，使得別人無法直接看懂，而解密則是把加密後的資料轉回原本的形式，其中有對稱加密和非對稱加密兩種方式"
+[[dialogue.encrypt_tutorial.options]]
+text = "了解"
+next = "hash_tutorial"
+favorability_add = +10
 
-[dialogue.simplify_discussion]
-character = "ta"
-text = "沒問題，你們可以從基本的好感度系統開始，然後逐步增加更多的功能。"
-[[dialogue.simplify_discussion.options]]
-text = "好的，我們會從基本的開始。"
-next = "finalize_ideas"
+[dialogue.hash_tutorial]
+character = "Z"
+text = "雜湊是把資料轉成固定長度的字串，而且不可逆，也就是無法從雜湊值回推原本的資料，常用於驗證資料的完整性"
+[[dialogue.hash_tutorial.options]]
+text = "了解"
+event = "rule_tutorial"
+favorability_add = +15
 
-[dialogue.time_management]
-character = "ta"
-text = "合理的時間管理和階段性目標設定對於成功完成專案非常重要。建議你們制定一個時間表。"
-[[dialogue.time_management.options]]
-text = "謝謝提醒，我們會制定計劃的。"
-next = "finalize_ideas"
+[dialogue.encrypt_only_tutorial]
+character = "Y"
+text = "加密是把資料轉成另一種形式，使得別人無法直接看懂，而解密則是把加密後的資料轉回原本的形式，其中有對稱加密和非對稱加密兩種方式"
+[[dialogue.encrypt_only_tutorial.options]]
+text = "了解"
+event = "rule_tutorial"
+favorability_add = +10
 
-[event.project_start]
-end = "good_luck"
+[dialogue.rule_description]
+character = "X"
+text = "接下來請找出一串 falg{} 的文字"
+[[dialogue.rule_description.options]]
+text = "好"
+event = "normal_selection"
+favorability_add = -5
+[[dialogue.rule_description.options]]
+text = "CTF?"
+event = "special_selection"
+favorability_add = +100
 
-[end.good_luck]
-title = "Good Luck!"
-background = "assets/end/good_luck.bmp"
-text = "this is lot of text that will be displayed on the screen when the game ends and the player wins the game"
-music = "assets/end/good_luck.mp3"
+[dialogue.difficulty_normal]
+character = "X"
+text = "請選擇難度"
+[[dialogue.difficulty_normal.options]]
+text = "warmup"
+event = "warmup_end"
+
+[dialogue.difficulty_select]
+character = "X"
+text = "請選擇難度"
+[[dialogue.difficulty_select.options]]
+text = "warm up"
+event = "warmup_end"
+[[dialogue.difficulty_select.options]]
+text = "baby"
+event = "baby_end"
+
+[end.know]
+title = "RkxBRyBmb3JtYXQ6IGZsYWd7fQ=="
+background = "img/end/special.png"
+text = "VlVoV2FXSkhiR3BKUlhSc1pWUnZaMHRFV1hkTmFsVXdUbnBKTUUxcVdYcE9lbFY1VGtScmQwMXFhM05KUkdNd1RucFJlazVFVlhwUFJFMTZUVlJSTkUxVVl6Sk9lbU53U1VWV2RWa3pTalZqU0ZKc1drUnZaMWQ2VFhwTmFsVjVUbXBWZUU1cVJYZE9ha2w2VFhwcmVFOVVSWE5KUkZWNVRtcEZOVTVxUVRGUFJFVjNUVVJOZDA1cVNUVk5ha0Z6U1VSUmQwNTZUVE5PUkVVd1RtcFJNRTVVUlRCT2Ftc3pUME4zWjAxVVkzcFBWR04zVFhwTmVFMVVaM2hPZWtrelRYcFpNMHhEUVRCUFZHTTFUWHBqZUU1NldUVk9SRlY1VFZSRk5FMTZTVE5NUTBFd1QwUmpNVTVxUVRCT1ZHTXdUMFJGTkUxVVFYZFBWR00wVEVOQmVFMXFUWGhPVkVVMVRYcHJlVTVFV1ROT2VsRjVUbXBKTTB4RFFYaE5SRmt5VGxScmVFNTZSWGhPVkZVd1RVUnJOVTlFU1hkTVEwRjRUVlJuTVU5RVNUSk5hbXN3VGtSTk0wNUVXVEJPVkdOM1RFTkJNMDFxU1RST1JHY3hUV3BuTlU1VVl6Rk9WR2N3VFdwSmVreERRWGhOYWsxM1RVUlZlVTFxYTNwT1JFa3hUMFJSTUU5RVl6Rk1RMEY0VFdwTmVFNVVSVFZOZW10NVRrUlpNMDU2VVhsT2Fra3pURU5CZWs1RVZUVk9la1Y0VFhwbk1rNUVRVEJPZWxWNVRucFZORXhEUVRKT2VsVXpUbnBaZVU5VVNURk5lbWN3VFhwTk5VMTZaM3BNUTBGNVRucEJNRTFxUVRGTlJGVXlUa1JuTlU1RVZYcE5WRUUxVEVOQmVFMXFUWGhPVkVVMVRYcHJlVTVFV1ROT2VsRjVUbXBKTTB4RFFUQk9WRWwzVG1wbk1FMVVRWGxOZW1ONVRYcEZORTVFUlhOSlJFVXdUV3BqZDA1RVJURk5lazB4VFhwSk1rNTZVVFZPUkVselNVUmplVTFxWnpCUFJGVjVUMFJyTVU1NlZURlBSRkY1VFdwTmMwbEVVWHBPUkUwd1QwUkZkMDU2YXpOUFZGazFUMVJuTlU1VVozTkpSRVY1VFhwRk1VMVVhM3BQVkVrd1RtcGpNMDVFU1RKTmFtTnpTVVJOZDA1VVJUTk9la1V5VGtSamQwNUVSVFZPZW1kNlRVUm5jMGxFV1hoT1JGRTBUbFJaZDAxRWEzaE5WRkV3VG1wVk1FOUVRWE5KUkUwelRtcFZNVTVxVFRSTmFrMHpUbFJGZDA1cVNUQk9SRlZ6U1VSTk1FNVVhek5OVkVWNlQwUlpNRTFFVVROT1ZFa3pUbFJuYzBsRVNYZE5SRmsxVFVSak1FMVVXVEJOUkdOM1RVUkJlRTVxUVhOSlJGVjRUVVJyTTA1cVZUQlBSRVUwVFhwWk1FNTZUWGhPYW10elNVUlJlVTVVWjNkTmVrazFUV3BWTUU1NlNUTk5WRVV3VDBSRmMwbEVSVEJOYW1OM1RrUkZNVTE2VFRGTmVra3lUbnBSTlU1RVNYTkpSRVY0VDBSVk5FMXFXWGxQVkZFd1RYcGpNRTVxVVRGT2VrRnpTVVJaZUU1RVVUUk9WRmwzVFVScmVFMVVVVEJPYWxVd1QwUkJjMGxFU1ROTlJHc3lUa1JSTlUxVVdUSk9SR3MxVDFSRmVFMTZhR1E9"
+# music = ""
+
+[end.warmup]
+title = "Warm up"
+background = "img/end/encode.jpg"
+text = "Wm14aFozdmlyWkR3bjQ2RzhKK09pUENma3FiaW1wVHZ1STk5"
+music = "music/Encoded Love.mp3"
+
+[end.baby]
+title = "YmFieSBSU0EgKG9yaWdpbiBmcm9tIEFJUzMp"
+background = "img/end/encrypt.jpg"
+text = "flag length:30 ; Encrypted: [1523290560, 750168374, 2601400693, 1652922160, 2503971748, 433705319, 433705319, 2179213890, 433705319, 433705319, 340433836, 1374569185, 340433836, 648083445, 1087059180, 582183200, 1275998069, 340433836, 604336931, 50368339, 648083445, 1626956101, 1356523296, 2385433874, 246170155, 340433836, 1626956101, 477919503, 1087059180, 2571358503]"
+music = ""
