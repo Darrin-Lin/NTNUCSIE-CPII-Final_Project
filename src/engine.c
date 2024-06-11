@@ -111,15 +111,15 @@ int main(int argc, char *argv[])
     char character_img_path[MAX_CHARACTER_NUM][1024] = {0};
 
     // using path
-    char use_novel_path[1024] =  {0};
-    char use_background_path[1024] =  {0};
-    char use_avatar_path[1024] =  {0};
-    char use_tachie_path[1024] =  {0};
-    char use_ttf_path[1024] = {0};// NotoSansTC-Medium.ttf
+    char use_novel_path[1024] = {0};
+    char use_background_path[1024] = {0};
+    char use_avatar_path[1024] = {0};
+    char use_tachie_path[1024] = {0};
+    char use_ttf_path[1024] = {0}; // NotoSansTC-Medium.ttf
     char use_save_path[1024] = {0};
     char use_item_path[MAX_ITEM_NUM][1024] = {0};
     char use_character_path[MAX_CHARACTER_NUM][1024] = {0};
-    char use_music_path[1024] = {0};                                                // {0};
+    char use_music_path[1024] = {0}; // {0};
 
     // selection
     toml_array_t *options = NULL;
@@ -354,7 +354,7 @@ int main(int argc, char *argv[])
                     {
                         if (stat == STATUS_DIALOGUE_OPTION)
                         {
-                            
+
                             toml_table_t *options_txt = toml_table_at(options, option_choose);
                             update_favorability_add(save, character_id, favorability_add);
                             favorability_add = 0;
@@ -415,9 +415,11 @@ int main(int argc, char *argv[])
 
                             if (!play_ending_music)
                             {
-                                Mix_PauseMusic();
+
                                 if (strncmp(ending_music_path, "NO_MUSIC", 1024) != 0)
                                 {
+                                    Mix_PauseMusic();
+                                    snprintf(use_music_path, sizeof(use_music_path), "%s%s", path, ending_music_path);
                                     ending_music = Mix_LoadMUS(use_music_path);
                                     if (ending_music == NULL)
                                     {
@@ -723,10 +725,10 @@ int main(int argc, char *argv[])
                     char tmp_item_name[1024] = {0};
                     char tmp_item_img_path[1024] = {0};
                     char use_tmp_item_img_path[1024] = {0};
-                    snprintf(use_tmp_item_img_path, sizeof(use_tmp_item_img_path), "%s%s", path, tmp_item_img_path);
                     toml_table_t *items = toml_table_in(novel, "item");
                     get_items(items, tmp_item_id, tmp_item_name, tmp_item_img_path);
                     strtok(tmp_item_name, ":");
+                    snprintf(use_tmp_item_img_path, sizeof(use_tmp_item_img_path), "%s%s", path, tmp_item_img_path);
                     draw_item_get(renderer, title_font, tmp_item_name, use_tmp_item_img_path);
                 }
                 draw_title(renderer, title_font, event_id, TITLE_BOTTOM);
@@ -785,7 +787,6 @@ int main(int argc, char *argv[])
                     get_character_mood(characters, character_id, avatar_path, tachie_path, favorability_add);
                     snprintf(use_avatar_path, sizeof(use_avatar_path), "%s%s", path, avatar_path);
                     snprintf(use_tachie_path, sizeof(use_tachie_path), "%s%s", path, tachie_path);
-                    debug_print("path: %s\n", use_avatar_path);
                 }
 
                 draw_conversation(renderer, font, use_background_path, use_avatar_path, use_tachie_path, character_name, dialogue_text);
@@ -802,7 +803,6 @@ int main(int argc, char *argv[])
             for (int32_t i = 0; i < item_num; i++)
             {
                 snprintf(use_item_path[i], sizeof(use_item_path[i]), "%s%s", path, items_img_path[i]);
-                debug_print("Item path: %s\n", use_item_path[i]);
             }
             draw_bag(renderer, font, items_text, use_item_path, item_num, item_select);
         }
