@@ -603,6 +603,7 @@ int8_t draw_item_get(SDL_Renderer *renderer, TTF_Font *title_font, char *item_na
     item_img_surface = IMG_Load(item_img_path);
     if (item_img_surface == NULL)
     {
+        debug_print("%s\n", item_img_path);
         debug_print("can't create item_img_surface.\n");
         SDL_FreeSurface(item_text_surface);
         SDL_DestroyTexture(item_text_texture);
