@@ -9,7 +9,7 @@ DEBUG = #-DDBUG
 
 ./engine: engine.c $(TOML_PROGRAM) $(SDL_PROGRAM) $(CJSON_PROGRAM)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(DEBUG)
-./test: test.c $(TOML_PROGRAM) $(SDL_PROGRAM) $(CJSON_PROGRAM)
+./test_engine: test.c $(TOML_PROGRAM) $(SDL_PROGRAM) $(CJSON_PROGRAM)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(DEBUG)
 
 .PHONY: clean

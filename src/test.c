@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
     char ending_music_path[1024] = {0};
 
     // using path
-    char use_novel_path[1024] = "./res/novel.toml";                                                      // {0};
-    char use_background_path[1024] = "./res/img/bg.jpg";                                                 // {0};
+    char use_novel_path[1024] = "./res/sample.toml";                                                     // {0};
+    char use_background_path[1024] = "./res/img/scene/lobby.png";                                        // {0};
     char use_avatar_path[1024] = "./res/img/avatar.png";                                                 // {0};
     char use_tachie_path[1024] = "./res/img/avatar.png";                                                 // {0};
     char use_ttf_path[1024] = "./res/fonts/font.ttf";                                                    // {0};// NotoSansTC-Medium.ttf
@@ -254,12 +254,19 @@ int main(int argc, char *argv[])
     }
     title_font = TTF_OpenFont(use_ttf_path, 48);
     atexit(close_TTF);
+    strncpy(use_music_path, "./res/sound/switch.mp3", sizeof(use_music_path));
     sound_switch = Mix_LoadWAV(use_music_path);
+    strncpy(use_music_path, "./res/sound/select.mp3", sizeof(use_music_path));
     sound_select = Mix_LoadWAV(use_music_path);
+    strncpy(use_music_path, "./res/sound/change.mp3", sizeof(use_music_path));
     sound_change = Mix_LoadWAV(use_music_path);
+    strncpy(use_music_path, "./res/sound/get_item.mp3", sizeof(use_music_path));
     sound_get_item = Mix_LoadWAV(use_music_path);
+    strncpy(use_music_path, "./res/sound/dialogue.mp3", sizeof(use_music_path));
     sound_dialogue = Mix_LoadWAV(use_music_path);
+    strncpy(use_music_path, "./res/sound/scene.mp3", sizeof(use_music_path));
     sound_scene = Mix_LoadWAV(use_music_path);
+    strncpy(use_music_path, "./res/sound/esc.mp3", sizeof(use_music_path));
     sound_esc = Mix_LoadWAV(use_music_path);
     strcpy(use_music_path, "./res/music/title.mp3");
     title_music = Mix_LoadMUS(use_music_path);
@@ -324,8 +331,7 @@ int main(int argc, char *argv[])
                     {
                         if (stat == STATUS_DIALOGUE_OPTION)
                         {
-                            option_choose = 0;
-                            option_num = 0;
+
                             toml_table_t *options_txt = toml_table_at(options, option_choose);
                             update_favorability_add(save, character_id, favorability_add);
                             favorability_add = 0;
@@ -349,6 +355,8 @@ int main(int argc, char *argv[])
                                     debug_print("No next.\n");
                                     return -1;
                                 }
+                                option_choose = 0;
+                                option_num = 0;
                             }
                             else if (next_stat == STATUS_DIALOGUE)
                             {

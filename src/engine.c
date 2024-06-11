@@ -111,15 +111,15 @@ int main(int argc, char *argv[])
     char character_img_path[MAX_CHARACTER_NUM][1024] = {0};
 
     // using path
-    char use_novel_path[1024] = "./res/novel.toml";                                                      // {0};
-    char use_background_path[1024] = "./res/img/bg.jpg";                                                 // {0};
-    char use_avatar_path[1024] = "./res/img/avatar.png";                                                 // {0};
-    char use_tachie_path[1024] = "./res/img/avatar.png";                                                 // {0};
-    char use_ttf_path[1024] = "./res/fonts/font.ttf";                                                    // {0};// NotoSansTC-Medium.ttf
-    char use_save_path[1024] = "./res/save.json";                                                        // {0};
-    char use_item_path[MAX_ITEM_NUM][1024] = {"./res/img/avatar.png", "./res/img/avatar.png"};           // {0};
-    char use_character_path[MAX_CHARACTER_NUM][1024] = {"./res/img/avatar.png", "./res/img/avatar.png"}; // {0};
-    char use_music_path[1024] = "./res/sound/switch.mp3";                                                // {0};
+    char use_novel_path[1024] =  {0};
+    char use_background_path[1024] =  {0};
+    char use_avatar_path[1024] =  {0};
+    char use_tachie_path[1024] =  {0};
+    char use_ttf_path[1024] = {0};// NotoSansTC-Medium.ttf
+    char use_save_path[1024] = {0};
+    char use_item_path[MAX_ITEM_NUM][1024] = {0};
+    char use_character_path[MAX_CHARACTER_NUM][1024] = {0};
+    char use_music_path[1024] = {0};                                                // {0};
 
     // selection
     toml_array_t *options = NULL;
@@ -216,6 +216,17 @@ int main(int argc, char *argv[])
             strcpy(event_id, cJSON_GetObjectItem(save, "event")->valuestring);
             next_stat = STATUS_EVENT;
         }
+        if (cJSON_GetObjectItem(save, "item") != NULL)
+        {
+            cJSON *item = cJSON_GetObjectItem(save, "item");
+            item_num = cJSON_GetArraySize(item);
+            for (int32_t i = 0; i < item_num; i++)
+            {
+                cJSON *item_id = cJSON_GetArrayItem(item, i);
+                strncpy(items_id[i], item_id->valuestring, sizeof(items_id[i]));
+                get_items(toml_table_in(novel, "item"), items_id[i], items_text[i], items_img_path[i]);
+            }
+        }
     }
     if (mySDL_init())
     {
@@ -255,7 +266,7 @@ int main(int argc, char *argv[])
         return -1;
     }
     atexit(close_SDL);
-    snprintf(use_ttf_path, sizeof(use_ttf_path), "%s%s", path, "font.ttf");
+    snprintf(use_ttf_path, sizeof(use_ttf_path), "%s%s", path, "fonts/font.ttf");
     font = TTF_OpenFont(use_ttf_path, 24);
     if (font == NULL)
     {
@@ -343,8 +354,7 @@ int main(int argc, char *argv[])
                     {
                         if (stat == STATUS_DIALOGUE_OPTION)
                         {
-                            option_choose = 0;
-                            option_num = 0;
+                            
                             toml_table_t *options_txt = toml_table_at(options, option_choose);
                             update_favorability_add(save, character_id, favorability_add);
                             favorability_add = 0;
@@ -390,6 +400,8 @@ int main(int argc, char *argv[])
                                 debug_print("No next.\n");
                                 return -1;
                             }
+                            option_choose = 0;
+                            option_num = 0;
                         }
                         int8_t change = change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, ending_music_path, scene_name, character_name, dialogue_text, end_text, event_id, scene_id, character_id, dialogue_id, tmp_item_id, end_id, &options, option_choose);
                         if (change == -1)
@@ -654,6 +666,7 @@ int main(int argc, char *argv[])
                             for (int32_t i = 0; i < item_num; i++)
                             {
                                 update_get_item_id(save, i, items_id[i]);
+                                debug_print("Item id: %s\n", items_id[i]);
                                 get_items(items, items_id[i], items_text[i], items_img_path[i]);
                             }
                         }
@@ -709,7 +722,8 @@ int main(int argc, char *argv[])
                 {
                     char tmp_item_name[1024] = {0};
                     char tmp_item_img_path[1024] = {0};
-                    char use_tmp_item_img_path[1024] = "./res/img/avatar.png"; // {0};
+                    char use_tmp_item_img_path[1024] = {0};
+                    snprintf(use_tmp_item_img_path, sizeof(use_tmp_item_img_path), "%s%s", path, tmp_item_img_path);
                     toml_table_t *items = toml_table_in(novel, "item");
                     get_items(items, tmp_item_id, tmp_item_name, tmp_item_img_path);
                     strtok(tmp_item_name, ":");
@@ -767,9 +781,11 @@ int main(int argc, char *argv[])
                 }
                 if (favorability_add)
                 {
-                    get_character_mood(novel, character_id, avatar_path, tachie_path, favorability_add);
+                    toml_table_t *characters = toml_table_in(novel, "character");
+                    get_character_mood(characters, character_id, avatar_path, tachie_path, favorability_add);
                     snprintf(use_avatar_path, sizeof(use_avatar_path), "%s%s", path, avatar_path);
                     snprintf(use_tachie_path, sizeof(use_tachie_path), "%s%s", path, tachie_path);
+                    debug_print("path: %s\n", use_avatar_path);
                 }
 
                 draw_conversation(renderer, font, use_background_path, use_avatar_path, use_tachie_path, character_name, dialogue_text);
@@ -786,6 +802,7 @@ int main(int argc, char *argv[])
             for (int32_t i = 0; i < item_num; i++)
             {
                 snprintf(use_item_path[i], sizeof(use_item_path[i]), "%s%s", path, items_img_path[i]);
+                debug_print("Item path: %s\n", use_item_path[i]);
             }
             draw_bag(renderer, font, items_text, use_item_path, item_num, item_select);
         }
