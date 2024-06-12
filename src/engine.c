@@ -1,61 +1,16 @@
 #include "basic_include.h"
 #include "./TOML_process/TOML_get.h"
-#include "./SDL_process/window_process.h"
-#include "./SDL_process/init_all_SDL.h"
 #include "./cJSON_process/save_process.h"
 #include "debug.h"
 
-SDL_Window *window;
-TTF_Font *font;
-TTF_Font *title_font;
-Mix_Music *title_music;
-Mix_Music *bgm_music;
-Mix_Music *ending_music;
-Mix_Chunk *sound_switch;
-Mix_Chunk *sound_select;
-Mix_Chunk *sound_change;
-Mix_Chunk *sound_get_item;
-Mix_Chunk *sound_dialogue;
-Mix_Chunk *sound_scene;
-Mix_Chunk *sound_esc;
+#define SETTING_BAR_OPTION_NUM 5
+#define ITEM_COL_NUM 2
+#define CHARACTERS_COL_NUM 3
+
 toml_table_t *novel;
 cJSON *save;
 
-void close_SDL()
-{
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-}
-void close_TTF()
-{
-    TTF_CloseFont(font);
-    TTF_CloseFont(title_font);
-    TTF_Quit();
-}
-void close_Mix()
-{
-    Mix_FreeChunk(sound_switch);
-    Mix_FreeChunk(sound_select);
-    Mix_FreeChunk(sound_change);
-    Mix_FreeChunk(sound_get_item);
-    Mix_FreeChunk(sound_dialogue);
-    Mix_FreeChunk(sound_scene);
-    Mix_FreeChunk(sound_esc);
-    Mix_CloseAudio();
-    Mix_Quit();
-}
-void close_title_music()
-{
-    Mix_FreeMusic(title_music);
-}
-void close_bgm_music()
-{
-    Mix_FreeMusic(bgm_music);
-}
-void colse_ending_music()
-{
-    Mix_FreeMusic(ending_music);
-}
+
 void close_TOML()
 {
     toml_free(novel);
@@ -73,6 +28,14 @@ enum window_mode
     MODE_FAVORABILITY,
     MODE_BAG,
     MODE_SETTING
+};
+enum setting_bar_option
+{
+    SETTING_BAR_OPTION_HELP = 0,
+    SETTING_BAR_OPTION_SAVE,
+    SETTING_BAR_OPTION_BAG,
+    SETTING_BAR_OPTION_CHARACTERS,
+    SETTING_BAR_OPTION_EXIT
 };
 
 int main(int argc, char *argv[])
@@ -260,82 +223,20 @@ int main(int argc, char *argv[])
         strncpy(background_path, "NO_BG", sizeof(background_path));
         debug_print("No background.\n");
     }
-    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-    if (window == NULL)
-    {
-        debug_print("Can't create window.\n");
-        return -1;
-    }
-    atexit(close_SDL);
-    snprintf(use_ttf_path, 2048, "%s%s", path, "fonts/font.ttf");
-    font = TTF_OpenFont(use_ttf_path, 24);
-    if (font == NULL)
-    {
-        debug_print("can't open font.\n");
-        return -1;
-    }
-    title_font = TTF_OpenFont(use_ttf_path, 48);
-    atexit(close_TTF);
-    snprintf(use_music_path, 2048, "%s%s", path, "sound/switch.mp3");
-    sound_switch = Mix_LoadWAV(use_music_path);
-    snprintf(use_music_path, 2048, "%s%s", path, "sound/select.mp3");
-    sound_select = Mix_LoadWAV(use_music_path);
-    snprintf(use_music_path, 2048, "%s%s", path, "sound/change.mp3");
-    sound_change = Mix_LoadWAV(use_music_path);
-    snprintf(use_music_path, 2048, "%s%s", path, "sound/get_item.mp3");
-    sound_get_item = Mix_LoadWAV(use_music_path);
-    snprintf(use_music_path, 2048, "%s%s", path, "sound/dialogue.mp3");
-    sound_dialogue = Mix_LoadWAV(use_music_path);
-    snprintf(use_music_path, 2048, "%s%s", path, "sound/scene.mp3");
-    sound_scene = Mix_LoadWAV(use_music_path);
-    snprintf(use_music_path, 2048, "%s%s", path, "sound/esc.mp3");
-    sound_esc = Mix_LoadWAV(use_music_path);
-    if (sound_switch == NULL || sound_select == NULL || sound_change == NULL || sound_get_item == NULL || sound_dialogue == NULL || sound_scene == NULL || sound_esc == NULL)
-    {
-        debug_print("can't load sound.\n");
-        return -1;
-    }
-    atexit(close_Mix);
-    snprintf(use_music_path, 2048, "%s%s", path, "music/title.mp3");
-    title_music = Mix_LoadMUS(use_music_path);
-    if (title_music == NULL)
-    {
-        debug_print("can't load title music.\n");
-    }
-    else
-    {
-        Mix_PlayMusic(title_music, -1);
-        atexit(close_title_music);
-    }
     // show
     while (1)
     {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
+        // while (GET_KEY)
         {
-            if (event.type == SDL_QUIT)
+            
+            // if (KEYDOWN)
             {
-                debug_print("Quit.\n");
-                return 0;
-            }
-            else if (event.type == SDL_KEYDOWN)
-            {
-                if (event.key.keysym.sym == SDLK_SPACE)
+                // if (SPACE)
                 {
                     if (mode == MODE_START)
                     {
                         Mix_PauseMusic();
                         snprintf(use_music_path, 2048, "%s%s", path, "music/bgm.mp3");
-                        bgm_music = Mix_LoadMUS(use_music_path);
-                        if (bgm_music == NULL)
-                        {
-                            debug_print("can't load bgm music.\n");
-                        }
-                        else
-                        {
-                            Mix_PlayMusic(bgm_music, -1);
-                            atexit(close_bgm_music);
-                        }
                         mode = MODE_NOVEL;
                         int8_t change = change_status(novel, &stat, &next_stat, background_path, avatar_path, tachie_path, ending_music_path, scene_name, character_name, dialogue_text, end_text, event_id, scene_id, character_id, dialogue_id, tmp_item_id, end_id, &options, option_choose);
                         if (change == -1)
@@ -421,17 +322,6 @@ int main(int argc, char *argv[])
                                 {
                                     Mix_PauseMusic();
                                     snprintf(use_music_path, 2048, "%s%s", path, ending_music_path);
-                                    ending_music = Mix_LoadMUS(use_music_path);
-                                    if (ending_music == NULL)
-                                    {
-                                        debug_print("can't load ending music.\n");
-                                    }
-                                    else
-                                    {
-                                        play_ending_music = 1;
-                                        Mix_PlayMusic(ending_music, -1);
-                                        atexit(colse_ending_music);
-                                    }
                                 }
                             }
                             debug_print("End.\n");
@@ -440,7 +330,6 @@ int main(int argc, char *argv[])
 
                         if (stat == STATUS_DIALOGUE_OPTION)
                         {
-                            Mix_PlayChannel(-1, sound_dialogue, 0);
                             option_num = toml_array_nelem(options);
                             if (option_num > 5)
                             {
@@ -448,28 +337,11 @@ int main(int argc, char *argv[])
                                 return -1;
                             }
                         }
-                        if (stat == STATUS_DIALOGUE)
-                        {
-                            Mix_PlayChannel(-1, sound_dialogue, 0);
-                        }
                         if (stat == STATUS_EVENT)
                         {
                             animation_play = 1;
                             reload = 1;
                             update_event(save, event_id);
-                            if (strlen(tmp_item_id) > 0)
-                            {
-                                Mix_PlayChannel(-1, sound_get_item, 0);
-                                update_add_item(save, tmp_item_id);
-                            }
-                            else
-                            {
-                                Mix_PlayChannel(-1, sound_change, 0);
-                            }
-                        }
-                        if (stat == STATUS_SCENE)
-                        {
-                            Mix_PlayChannel(-1, sound_scene, 0);
                         }
                         if (stat == STATUS_DIALOGUE || stat == STATUS_DIALOGUE_OPTION)
                         {
@@ -514,93 +386,80 @@ int main(int argc, char *argv[])
                         debug_print("Option choose: %d\n\n", option_choose);
                     }
                 }
-                if (event.key.keysym.sym == SDLK_UP)
+                // if (UP_KEY)
                 {
                     if (mode == MODE_NOVEL)
                     {
                         if (stat == STATUS_DIALOGUE_OPTION)
                         {
-                            Mix_PlayChannel(-1, sound_switch, 0);
                             option_choose = ((option_choose - 1) + option_num) % option_num;
                             debug_print("Option choose: %d\n", option_choose);
                         }
                     }
                     if (mode == MODE_BAG)
                     {
-                        Mix_PlayChannel(-1, sound_switch, 0);
                         item_select = ((item_select - 1) + MAX_ITEM_NUM) % MAX_ITEM_NUM;
                         debug_print("Item select: %d\n", item_select);
                     }
                     if (mode == MODE_FAVORABILITY)
                     {
-                        Mix_PlayChannel(-1, sound_switch, 0);
                         character_select = ((character_select - 1) + MAX_CHARACTER_NUM) % MAX_CHARACTER_NUM;
                     }
                 }
-                if (event.key.keysym.sym == SDLK_DOWN)
+                // if (DOWN_KEY)
                 {
                     if (mode == MODE_NOVEL)
                     {
                         if (stat == STATUS_DIALOGUE_OPTION)
                         {
-                            Mix_PlayChannel(-1, sound_switch, 0);
                             option_choose = (option_choose + 1) % option_num;
                             debug_print("Option choose: %d\n", option_choose);
                         }
                     }
                     if (mode == MODE_BAG)
                     {
-                        Mix_PlayChannel(-1, sound_switch, 0);
                         item_select = (item_select + 1) % MAX_ITEM_NUM;
                         debug_print("Item select: %d\n", item_select);
                     }
                     if (mode == MODE_FAVORABILITY)
                     {
-                        Mix_PlayChannel(-1, sound_switch, 0);
                         character_select = (character_select + 1) % MAX_CHARACTER_NUM;
                     }
                 }
-                if (event.key.keysym.sym == SDLK_RIGHT)
+                // if (RIGHT_KEY)
                 {
                     if (mode == MODE_NOVEL)
                     {
-                        Mix_PlayChannel(-1, sound_switch, 0);
                         setting_bar_select = (setting_bar_select + 1) % SETTING_BAR_OPTION_NUM;
                     }
                     if (mode == MODE_BAG)
                     {
-                        Mix_PlayChannel(-1, sound_switch, 0);
                         item_select = (item_select + (MAX_ITEM_NUM / ITEM_COL_NUM)) % MAX_ITEM_NUM;
                     }
                     if (mode == MODE_FAVORABILITY)
                     {
-                        Mix_PlayChannel(-1, sound_switch, 0);
                         character_select = (character_select + (MAX_CHARACTER_NUM / CHARACTERS_COL_NUM)) % MAX_CHARACTER_NUM;
                     }
                 }
-                if (event.key.keysym.sym == SDLK_LEFT)
+                // if (LEFT_KEY)
                 {
                     if (mode == MODE_NOVEL)
                     {
-                        Mix_PlayChannel(-1, sound_switch, 0);
                         setting_bar_select = ((setting_bar_select - 1) + SETTING_BAR_OPTION_NUM) % SETTING_BAR_OPTION_NUM;
                     }
                     if (mode == MODE_BAG)
                     {
-                        Mix_PlayChannel(-1, sound_switch, 0);
                         item_select = ((item_select - (MAX_ITEM_NUM / ITEM_COL_NUM)) + MAX_ITEM_NUM) % MAX_ITEM_NUM;
                     }
                     if (mode == MODE_FAVORABILITY)
                     {
-                        Mix_PlayChannel(-1, sound_switch, 0);
                         character_select = (character_select - (MAX_CHARACTER_NUM / CHARACTERS_COL_NUM) + MAX_CHARACTER_NUM) % MAX_CHARACTER_NUM;
                     }
                 }
-                if (event.key.keysym.sym == SDLK_RETURN)
+                // if (ENTER_KEY)
                 {
                     if (mode == MODE_NOVEL)
                     {
-                        Mix_PlayChannel(-1, sound_select, 0);
                         if (setting_bar_select == SETTING_BAR_OPTION_SAVE)
                         {
                             save_file = fopen(use_save_path, "w");
@@ -676,9 +535,9 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
-                if (event.key.keysym.sym == SDLK_ESCAPE)
+                // if (ESCAPE_KEY)
                 {
-                    Mix_PlayChannel(-1, sound_esc, 0);
+                    // play esc sound
                     if (mode == MODE_HELP || mode == MODE_FAVORABILITY || mode == MODE_BAG || mode == MODE_SETTING)
                     {
                         mode = MODE_NOVEL;
@@ -688,15 +547,6 @@ int main(int argc, char *argv[])
         }
 
         // create renderer
-        SDL_Renderer *renderer = NULL;
-
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-        if (renderer == NULL)
-        {
-            debug_print("can't create renderer.\n");
-            return -1;
-        }
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
         // draw
         // draw_conversation(renderer, font, "./res/img/bg.jpg", "./res/img/avatar.png", "./res/img/avatar.png", "王一二三四五六", "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
@@ -707,12 +557,12 @@ int main(int argc, char *argv[])
         {
             if (strncmp(background_path, "NO_BG", sizeof(background_path)) == 0)
             {
-                draw_start_menu(renderer, title_font, font, NULL, title);
+                // draw the default background
             }
             else
             {
                 snprintf(use_background_path, 2048, "%s%s", path, background_path);
-                draw_start_menu(renderer, title_font, font, use_background_path, title);
+                // draw the background
             }
         }
         if (mode == MODE_NOVEL)
@@ -722,7 +572,7 @@ int main(int argc, char *argv[])
             snprintf(use_tachie_path, 2048, "%s%s", path, tachie_path);
             if (stat == STATUS_EVENT)
             {
-                if (animation_play && draw_animation(renderer, use_background_path,reload) == 1) // show animation
+                // play animation
                 {
                     animation_play = 0;
                     debug_print("Animation end.\n");
@@ -737,18 +587,17 @@ int main(int argc, char *argv[])
                     get_items(items, tmp_item_id, tmp_item_name, tmp_item_img_path);
                     strtok(tmp_item_name, ":");
                     snprintf(use_tmp_item_img_path, 2048, "%s%s", path, tmp_item_img_path);
-                    draw_item_get(renderer, title_font, tmp_item_name, use_tmp_item_img_path);
+                    // draw item
                 }
                 // draw
             }
             if (stat == STATUS_SCENE)
             {
-                draw_background(renderer, use_background_path);
-                draw_title(renderer, title_font, scene_name, TITLE_CENTER);
+                // draw scene show
             }
             if (stat == STATUS_DIALOGUE)
             {
-                draw_conversation(renderer, font, use_background_path, use_avatar_path, use_tachie_path, character_name, dialogue_text);
+                // draw conversation
             }
             if (stat == STATUS_DIALOGUE_OPTION)
             {
@@ -796,18 +645,17 @@ int main(int argc, char *argv[])
                     snprintf(use_tachie_path, 2048, "%s%s", path, tachie_path);
                 }
 
-                draw_conversation(renderer, font, use_background_path, use_avatar_path, use_tachie_path, character_name, dialogue_text);
-                draw_options(renderer, font, option_text, option_num, option_choose);
+                // draw conversation option
             }
             if (stat == STATUS_END)
             {
-                draw_ending(renderer, title_font, font, use_background_path, scene_name, end_text);
+                // draw ending page
             }
-            draw_setting_bar(renderer, font, setting_bar_select);
+            // draw setting bar
         }
         if (mode == MODE_HELP)
         {
-            draw_help(renderer, title_font);
+            // draw help
         }
         if (mode == MODE_BAG)
         {
@@ -815,7 +663,7 @@ int main(int argc, char *argv[])
             {
                 snprintf(use_item_path[i], 2048, "%s%s", path, items_img_path[i]);
             }
-            draw_bag(renderer, font, items_text, use_item_path, item_num, item_select);
+            // draw bag page
         }
         if (mode == MODE_FAVORABILITY)
         {
@@ -823,11 +671,9 @@ int main(int argc, char *argv[])
             {
                 snprintf(use_character_path[i], 2048, "%s%s", path, character_img_path[i]);
             }
-            draw_favorability(renderer, font, character_names, use_character_path, favorability, character_num, character_select);
+            // draw favorability page
         }
         // present
-        SDL_RenderPresent(renderer);
-        SDL_DestroyRenderer(renderer);
     }
     return 0;
 }
