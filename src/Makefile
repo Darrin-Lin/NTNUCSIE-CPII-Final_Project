@@ -1,6 +1,7 @@
 all: ./engine 
 CC = gcc
-CFLAGS= -g -Wall -Wextra -fsanitize=address -lubsan -lasan
+# CFLAGS= -g -Wall -Wextra -fsanitize=address -lubsan -lasan
+CFLAGS = 
 LDFLAGS= `sdl2-config --libs --cflags` -ggdb3 -O0 --std=c99 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 TOML_PROGRAM= ./third_party/tomlc99/toml.c ./TOML_process/TOML_get.c
 CJSON_PROGRAM= ./third_party/cJSON/cJSON.c ./cJSON_process/save_process.c
@@ -16,6 +17,7 @@ DEBUG = #-DDBUG
 
 clean:
 	-rm engine
-	-rm -r ./SDL_process/*.o
-	-rm -r ./TOML_process/*.o
-	-rm -r ./third_party/tomlc99/*.o
+	-rm test_engine
+	# -rm -r ./SDL_process/*.o
+	# -rm -r ./TOML_process/*.o
+	# -rm -r ./third_party/tomlc99/*.o
