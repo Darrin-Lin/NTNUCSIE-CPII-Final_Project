@@ -134,7 +134,8 @@ int main(int argc, char *argv[])
     int32_t character_select = 0;
     int32_t favorability[MAX_FACORABILITY] = {0};
     int8_t play_ending_music = 0;
-
+    int8_t animation_play = 0;
+    int8_t reload = 1;
     // temp data
     toml_datum_t tmp_datum;
     // set status
@@ -453,7 +454,8 @@ int main(int argc, char *argv[])
                         }
                         if (stat == STATUS_EVENT)
                         {
-
+                            animation_play = 1;
+                            reload = 1;
                             update_event(save, event_id);
                             if (strlen(tmp_item_id) > 0)
                             {
@@ -720,6 +722,12 @@ int main(int argc, char *argv[])
             snprintf(use_tachie_path, sizeof(use_tachie_path), "%s%s", path, tachie_path);
             if (stat == STATUS_EVENT)
             {
+                if (animation_play && draw_animation(renderer, use_background_path,reload) == 1) // show animation
+                {
+                    animation_play = 0;
+                    debug_print("Animation end.\n");
+                }
+                reload = 0;
                 if (strlen(tmp_item_id))
                 {
                     char tmp_item_name[1024] = {0};
@@ -731,7 +739,6 @@ int main(int argc, char *argv[])
                     snprintf(use_tmp_item_img_path, sizeof(use_tmp_item_img_path), "%s%s", path, tmp_item_img_path);
                     draw_item_get(renderer, title_font, tmp_item_name, use_tmp_item_img_path);
                 }
-                draw_title(renderer, title_font, event_id, TITLE_BOTTOM);
                 // draw
             }
             if (stat == STATUS_SCENE)
@@ -798,7 +805,7 @@ int main(int argc, char *argv[])
             }
             draw_setting_bar(renderer, font, setting_bar_select);
         }
-        if(mode == MODE_HELP)
+        if (mode == MODE_HELP)
         {
             draw_help(renderer, title_font);
         }

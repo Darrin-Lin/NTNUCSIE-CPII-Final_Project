@@ -472,7 +472,7 @@ int8_t draw_setting_bar(SDL_Renderer *renderer, TTF_Font *font, enum setting_bar
 
 int8_t draw_bag(SDL_Renderer *renderer, TTF_Font *font, char items[MAX_ITEM_NUM][1024], char items_img_path[MAX_ITEM_NUM][1024], int32_t item_num, int32_t item_select)
 {
-    if (renderer == NULL || font == NULL || items == NULL || items_img_path == NULL )
+    if (renderer == NULL || font == NULL || items == NULL || items_img_path == NULL)
     {
         return -1;
     }
@@ -481,8 +481,8 @@ int8_t draw_bag(SDL_Renderer *renderer, TTF_Font *font, char items[MAX_ITEM_NUM]
         debug_print("item_num is too large.\n");
         return -1;
     }
-    int32_t item_height = WINDOW_HEIGHT / (MAX_ITEM_NUM/ITEM_COL_NUM);
-    for (int32_t i = 0; i < MAX_ITEM_NUM ; i++)
+    int32_t item_height = WINDOW_HEIGHT / (MAX_ITEM_NUM / ITEM_COL_NUM);
+    for (int32_t i = 0; i < MAX_ITEM_NUM; i++)
     {
         SDL_Surface *item_surface = NULL;
         SDL_Texture *item_texture = NULL;
@@ -531,7 +531,7 @@ int8_t draw_bag(SDL_Renderer *renderer, TTF_Font *font, char items[MAX_ITEM_NUM]
         SDL_Color item_img_bg_color = ITEM_IMG_BG_COLOR;
         SDL_SetRenderDrawColor(renderer, item_img_bg_color.r, item_img_bg_color.g, item_img_bg_color.b, item_img_bg_color.a);
         SDL_RenderFillRect(renderer, &item_img_rect);
-        SDL_SetRenderDrawColor(renderer,item_select_color.r, item_select_color.g, item_select_color.b, item_select_color.a);
+        SDL_SetRenderDrawColor(renderer, item_select_color.r, item_select_color.g, item_select_color.b, item_select_color.a);
         SDL_RenderDrawRect(renderer, &item_img_rect);
         if (i == item_select)
         {
@@ -544,9 +544,9 @@ int8_t draw_bag(SDL_Renderer *renderer, TTF_Font *font, char items[MAX_ITEM_NUM]
         if (i < item_num)
         {
             item_rect.w = item_surface->w;
-            item_rect.h = item_surface->h>item_height?item_height:item_surface->h;
+            item_rect.h = item_surface->h > item_height ? item_height : item_surface->h;
             item_rect.x += (WINDOW_WIDTH / ITEM_COL_NUM - item_height) / 2 - item_surface->w / 2;
-            item_rect.y = row* item_height + item_height / 2 - item_rect.h / 2;
+            item_rect.y = row * item_height + item_height / 2 - item_rect.h / 2;
             SDL_RenderCopy(renderer, item_texture, NULL, &item_rect);
             SDL_DestroyTexture(item_texture);
             item_texture = NULL;
@@ -580,8 +580,8 @@ int8_t draw_item_get(SDL_Renderer *renderer, TTF_Font *title_font, char *item_na
     SDL_Texture *item_text_texture = NULL;
     SDL_Surface *item_img_surface = NULL;
     SDL_Texture *item_img_texture = NULL;
-    SDL_Rect item_rect = {WINDOW_WIDTH/2 - ITEM_GET_IMG_WIDTH/2, WINDOW_HEIGHT/2 - (ITEM_GET_IMG_WIDTH+TITLE_HEIGHT)/2, ITEM_GET_IMG_WIDTH, ITEM_GET_IMG_WIDTH};
-    SDL_Rect item_text_rect = {WINDOW_WIDTH/2 - ITEM_GET_IMG_WIDTH/2, WINDOW_HEIGHT/2 - (ITEM_GET_IMG_WIDTH+TITLE_HEIGHT)/2 + ITEM_GET_IMG_WIDTH, ITEM_GET_IMG_WIDTH, TITLE_HEIGHT};
+    SDL_Rect item_rect = {WINDOW_WIDTH / 2 - ITEM_GET_IMG_WIDTH / 2, WINDOW_HEIGHT / 2 - (ITEM_GET_IMG_WIDTH + TITLE_HEIGHT) / 2, ITEM_GET_IMG_WIDTH, ITEM_GET_IMG_WIDTH};
+    SDL_Rect item_text_rect = {WINDOW_WIDTH / 2 - ITEM_GET_IMG_WIDTH / 2, WINDOW_HEIGHT / 2 - (ITEM_GET_IMG_WIDTH + TITLE_HEIGHT) / 2 + ITEM_GET_IMG_WIDTH, ITEM_GET_IMG_WIDTH, TITLE_HEIGHT};
     if (renderer == NULL || title_font == NULL || item_name == NULL || item_img_path == NULL)
     {
         return -1;
@@ -624,22 +624,22 @@ int8_t draw_item_get(SDL_Renderer *renderer, TTF_Font *title_font, char *item_na
     SDL_RenderFillRect(renderer, &item_rect);
     SDL_SetRenderDrawColor(renderer, item_img_bg_color.r, item_img_bg_color.g, item_img_bg_color.b, item_img_bg_color.a);
     SDL_RenderFillRect(renderer, &item_text_rect);
-    item_text_rect.w = item_text_surface->w>ITEM_GET_IMG_WIDTH?ITEM_GET_IMG_WIDTH:item_text_surface->w;
+    item_text_rect.w = item_text_surface->w > ITEM_GET_IMG_WIDTH ? ITEM_GET_IMG_WIDTH : item_text_surface->w;
     item_text_rect.h = item_text_surface->h;
-    item_text_rect.x = WINDOW_WIDTH/2 - item_text_rect.w/2;
-    item_text_rect.y += TITLE_HEIGHT/2 - item_text_surface->h/2;
+    item_text_rect.x = WINDOW_WIDTH / 2 - item_text_rect.w / 2;
+    item_text_rect.y += TITLE_HEIGHT / 2 - item_text_surface->h / 2;
     SDL_RenderCopy(renderer, item_text_texture, NULL, &item_text_rect);
-    if(item_img_surface->w > item_img_surface->h)
+    if (item_img_surface->w > item_img_surface->h)
     {
         item_rect.w = ITEM_GET_IMG_WIDTH;
         item_rect.h = item_img_surface->h * ITEM_GET_IMG_WIDTH / item_img_surface->w;
-        item_rect.y = WINDOW_HEIGHT/2 - (ITEM_GET_IMG_WIDTH+TITLE_HEIGHT)/2 + ITEM_GET_IMG_WIDTH/2 - item_rect.h/2;
+        item_rect.y = WINDOW_HEIGHT / 2 - (ITEM_GET_IMG_WIDTH + TITLE_HEIGHT) / 2 + ITEM_GET_IMG_WIDTH / 2 - item_rect.h / 2;
     }
     else
     {
         item_rect.h = ITEM_GET_IMG_WIDTH;
         item_rect.w = item_img_surface->w * ITEM_GET_IMG_WIDTH / item_img_surface->h;
-        item_rect.x = WINDOW_WIDTH/2 - ITEM_GET_IMG_WIDTH/2 + ITEM_GET_IMG_WIDTH/2 - item_rect.w/2;
+        item_rect.x = WINDOW_WIDTH / 2 - ITEM_GET_IMG_WIDTH / 2 + ITEM_GET_IMG_WIDTH / 2 - item_rect.w / 2;
     }
     SDL_RenderCopy(renderer, item_img_texture, NULL, &item_rect);
     SDL_DestroyTexture(item_text_texture);
@@ -649,9 +649,9 @@ int8_t draw_item_get(SDL_Renderer *renderer, TTF_Font *title_font, char *item_na
     return 0;
 }
 
-int8_t draw_favorability(SDL_Renderer *renderer, TTF_Font *font, char characters_name[MAX_CHARACTER_NUM][1024], char characters_img_path[MAX_CHARACTER_NUM][1024],int32_t characters_favorability[MAX_CHARACTER_NUM] , int32_t characters_num, int32_t char_select)
+int8_t draw_favorability(SDL_Renderer *renderer, TTF_Font *font, char characters_name[MAX_CHARACTER_NUM][1024], char characters_img_path[MAX_CHARACTER_NUM][1024], int32_t characters_favorability[MAX_CHARACTER_NUM], int32_t characters_num, int32_t char_select)
 {
-    if (renderer == NULL || font == NULL || characters_name == NULL || characters_img_path == NULL || characters_favorability == NULL )
+    if (renderer == NULL || font == NULL || characters_name == NULL || characters_img_path == NULL || characters_favorability == NULL)
     {
         debug_print("error:%d,%d,%d,%d,%d\n", renderer, font, characters_name, characters_img_path, characters_num);
         return -1;
@@ -661,8 +661,8 @@ int8_t draw_favorability(SDL_Renderer *renderer, TTF_Font *font, char characters
         debug_print("characters_num is too large.\n");
         return -1;
     }
-    int32_t character_height = WINDOW_HEIGHT / (MAX_CHARACTER_NUM/CHARACTERS_COL_NUM);
-    for (int32_t i = 0; i < MAX_CHARACTER_NUM ; i++)
+    int32_t character_height = WINDOW_HEIGHT / (MAX_CHARACTER_NUM / CHARACTERS_COL_NUM);
+    for (int32_t i = 0; i < MAX_CHARACTER_NUM; i++)
     {
         SDL_Surface *character_surface = NULL;
         SDL_Texture *character_texture = NULL;
@@ -721,15 +721,15 @@ int8_t draw_favorability(SDL_Renderer *renderer, TTF_Font *font, char characters
         SDL_SetRenderDrawColor(renderer, character_select_color.r, character_select_color.g, character_select_color.b, character_select_color.a);
         SDL_RenderDrawRect(renderer, &character_rect);
         if (i < characters_num)
-        {   
+        {
             SDL_Color character_fac_color = CHARACTERS_FAVORABILITY_COLOR;
             SDL_SetRenderDrawColor(renderer, character_fac_color.r, character_fac_color.g, character_fac_color.b, character_fac_color.a);
-            character_rect.w = character_rect.w*((double)characters_favorability[i]/MAX_FACORABILITY);
+            character_rect.w = character_rect.w * ((double)characters_favorability[i] / MAX_FACORABILITY);
             SDL_RenderFillRect(renderer, &character_rect);
             character_rect.w = character_surface->w;
-            character_rect.h = character_surface->h>character_height?character_height:character_surface->h;
+            character_rect.h = character_surface->h > character_height ? character_height : character_surface->h;
             character_rect.x += (WINDOW_WIDTH / CHARACTERS_COL_NUM - character_height) / 2 - character_surface->w / 2;
-            character_rect.y = row* character_height + character_height / 2 - character_rect.h / 2;
+            character_rect.y = row * character_height + character_height / 2 - character_rect.h / 2;
             SDL_RenderCopy(renderer, character_texture, NULL, &character_rect);
             SDL_DestroyTexture(character_texture);
             character_texture = NULL;
@@ -754,12 +754,11 @@ int8_t draw_favorability(SDL_Renderer *renderer, TTF_Font *font, char characters
         {
             debug_print("error:%d,%d,%d\n", character_texture, character_surface);
         }
-            
     }
     return 0;
 }
 
-int8_t draw_help(SDL_Renderer *renderer,TTF_Font *font)
+int8_t draw_help(SDL_Renderer *renderer, TTF_Font *font)
 {
     if (renderer == NULL || font == NULL)
     {
@@ -799,6 +798,63 @@ int8_t draw_help(SDL_Renderer *renderer,TTF_Font *font)
         SDL_FreeSurface(help_surface);
         help_surface = NULL;
     }
-    
+    return 0;
+}
+
+int8_t draw_animation(SDL_Renderer *renderer, char *background_path, int8_t reload)
+{
+
+    static int32_t animation_frame = 0;
+    if (reload)
+    {
+        animation_frame = 0;
+    }
+    SDL_Surface *bg = NULL;
+    SDL_Texture *bg_texture = NULL;
+    if (renderer == NULL || background_path == NULL)
+    {
+        return -1;
+    }
+    bg = IMG_Load(background_path);
+    if (bg == NULL)
+    {
+        debug_print("can't find bg.\n");
+        return -1;
+    }
+
+    animation_frame += ANIMATION_FRAME_STEP;
+    if (animation_frame > 0xFF)
+    {
+        animation_frame = 0xFF;
+    }
+    SDL_Delay(ANIMATION_DELAY);
+    bg_texture = SDL_CreateTextureFromSurface(renderer, bg);
+    uint8_t alpha = (uint8_t)(0xFF - animation_frame);
+    debug_print("alpha:%d\n", alpha);
+    debug_print("frame:%d\n", animation_frame);
+    SDL_SetTextureBlendMode(bg_texture, SDL_BLENDMODE_BLEND);
+    if (SDL_SetTextureAlphaMod(bg_texture, alpha) != 0)
+    {
+        debug_print("can't set alpha.\n");
+        return -1;
+    }
+    if (bg_texture == NULL)
+    {
+        debug_print("can't create bg_texture.\n");
+        SDL_FreeSurface(bg);
+        bg = NULL;
+        return -1;
+    }
+    SDL_Rect bg_rect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+    SDL_RenderCopy(renderer, bg_texture, NULL, &bg_rect);
+    SDL_DestroyTexture(bg_texture);
+    bg_texture = NULL;
+    SDL_FreeSurface(bg);
+    bg = NULL;
+    if (animation_frame >= 0xFF)
+    {
+        animation_frame = 0;
+        return 1;
+    }
     return 0;
 }
