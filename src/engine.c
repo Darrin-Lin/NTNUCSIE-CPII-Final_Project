@@ -798,6 +798,10 @@ int main(int argc, char *argv[])
             }
             draw_setting_bar(renderer, font, setting_bar_select);
         }
+        if(mode == MODE_HELP)
+        {
+            draw_help(renderer, title_font);
+        }
         if (mode == MODE_BAG)
         {
             for (int32_t i = 0; i < item_num; i++)

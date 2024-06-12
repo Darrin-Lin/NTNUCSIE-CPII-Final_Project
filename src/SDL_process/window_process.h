@@ -111,7 +111,12 @@
     {                           \
         0xFF, 0xAA, 0xAA, 0xFF  \
     }
-
+#define HELP_BG_COLOR          \
+    {                          \
+        0xAA, 0xAA, 0xAA, 0xFF \
+    }
+#define HELP_MESSAGE_NUM 7
+#define HELP_MESSAGES {"[SPACE] : continue, select option", "[ESC] : back to novel page", "[↑] : option select up", "[↓] : option select down", "[ENTER] : setting bar select","[→] : setting bar option right","[←] : setting bar option left"}
 
 enum title_position
 {
@@ -128,7 +133,6 @@ enum setting_bar_option
     SETTING_BAR_OPTION_CHARACTERS,
     SETTING_BAR_OPTION_EXIT
 };
-
 int8_t draw_start_menu(SDL_Renderer *renderer, TTF_Font *title_font, TTF_Font *font, char *bg_path, char *game_name);
 int8_t draw_conversation(SDL_Renderer *renderer, TTF_Font *font, char *bg_path, char *avatar_path, char *tachie_path, char *character_name, char *text);
 int8_t draw_options(SDL_Renderer *renderer, TTF_Font *font, char option_text[5][1024], int32_t option_num, int32_t option_select);
@@ -142,3 +146,4 @@ int8_t draw_setting_bar(SDL_Renderer *renderer, TTF_Font *font, enum setting_bar
 int8_t draw_bag(SDL_Renderer *renderer, TTF_Font *font, char items[MAX_ITEM_NUM][1024], char items_img_path[MAX_ITEM_NUM][1024], int32_t item_num, int32_t item_select);
 int8_t draw_item_get(SDL_Renderer *renderer, TTF_Font *title_font, char *item_name, char *item_img_path);
 int8_t draw_favorability(SDL_Renderer *renderer, TTF_Font *font, char characters_name[MAX_CHARACTER_NUM][1024], char characters_img_path[MAX_CHARACTER_NUM][1024],int32_t characters_favorability[MAX_CHARACTER_NUM] , int32_t characters_num, int32_t char_select);
+int8_t draw_help(SDL_Renderer *renderer,TTF_Font *font);

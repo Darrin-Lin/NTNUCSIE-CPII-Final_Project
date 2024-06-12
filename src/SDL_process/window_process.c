@@ -758,3 +758,47 @@ int8_t draw_favorability(SDL_Renderer *renderer, TTF_Font *font, char characters
     }
     return 0;
 }
+
+int8_t draw_help(SDL_Renderer *renderer,TTF_Font *font)
+{
+    if (renderer == NULL || font == NULL)
+    {
+        return -1;
+    }
+    SDL_Color help_bg_color = HELP_BG_COLOR;
+    SDL_Rect help_bg_rect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+    SDL_SetRenderDrawColor(renderer, help_bg_color.r, help_bg_color.g, help_bg_color.b, help_bg_color.a);
+    SDL_RenderFillRect(renderer, &help_bg_rect);
+    SDL_Surface *help_surface = NULL;
+    SDL_Texture *help_texture = NULL;
+    SDL_Rect help_rect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+    SDL_Color color = TEXT_COLOR;
+    char *help_text[HELP_MESSAGE_NUM] = HELP_MESSAGES;
+    for (int32_t i = 0; i < HELP_MESSAGE_NUM; i++)
+    {
+        help_surface = TTF_RenderUTF8_Blended_Wrapped(font, help_text[i], color, (WINDOW_WIDTH - 20));
+        if (help_surface == NULL)
+        {
+            debug_print("can't create help_surface.\n");
+            return -1;
+        }
+        help_texture = SDL_CreateTextureFromSurface(renderer, help_surface);
+        if (help_texture == NULL)
+        {
+            debug_print("can't create help_texture.\n");
+            SDL_FreeSurface(help_surface);
+            return -1;
+        }
+        help_rect.w = help_surface->w;
+        help_rect.h = help_surface->h;
+        help_rect.x = WINDOW_WIDTH / 2 - help_surface->w / 2;
+        help_rect.y = i * help_surface->h + 10;
+        SDL_RenderCopy(renderer, help_texture, NULL, &help_rect);
+        SDL_DestroyTexture(help_texture);
+        help_texture = NULL;
+        SDL_FreeSurface(help_surface);
+        help_surface = NULL;
+    }
+    
+    return 0;
+}
