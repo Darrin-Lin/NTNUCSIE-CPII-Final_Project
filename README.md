@@ -20,11 +20,12 @@ Then you can use `engine` to run the game.
 <path>/sound/dialogue.mp3
 <path>/sound/scene.mp3
 <path>/sound/esc.mp3
+music and sound is **mp3** only
+You can copy those file from [here](./res/)
+
+## Optional files
 <path>/music/title.mp3
 <path>/music/bgm.mp3
-music and sound is **mp3** only
-
-You can copy those file from [here](./res/)
 
 ## TOML Requirement
 
