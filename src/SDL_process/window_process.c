@@ -289,7 +289,8 @@ int8_t draw_dialogue(SDL_Renderer *renderer, TTF_Font *font, char *text)
     SDL_Rect dialogue_rect = {AVATAR_WIDTH, WINDOW_HEIGHT - (CHARACTER_NAME_BG_HEIGHT + AVATAR_HEIGHT), (WINDOW_WIDTH - AVATAR_WIDTH), (CHARACTER_NAME_BG_HEIGHT + AVATAR_HEIGHT)};
     dialogue_rect.w = dialogue_surface->w;
     dialogue_rect.h = dialogue_surface->h;
-    SDL_SetRenderDrawColor(renderer, 0, 105, 148, 0xAA);
+    SDL_Color dialogue_bg_color = DIALOGUE_BG_COLOR;
+    SDL_SetRenderDrawColor(renderer, dialogue_bg_color.r, dialogue_bg_color.g, dialogue_bg_color.b, dialogue_bg_color.a);
     SDL_RenderFillRect(renderer, &dialogue_bg_rect);
     SDL_RenderCopy(renderer, dialogue_texture, NULL, &dialogue_rect);
     SDL_DestroyTexture(dialogue_texture);
@@ -354,9 +355,11 @@ int8_t draw_avatar(SDL_Renderer *renderer, TTF_Font *font, char *avatar_path, ch
     }
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 244, 164, 96, 0xFF);
+    SDL_Color character_name_bg_color = CHARACTER_NAME_BG_COLOR;
+    SDL_SetRenderDrawColor(renderer, character_name_bg_color.r, character_name_bg_color.g, character_name_bg_color.b, character_name_bg_color.a);
     SDL_RenderFillRect(renderer, &character_name_bg_rect);
-    SDL_SetRenderDrawColor(renderer, 230, 127, 80, 0xFF);
+    SDL_Color avatar_bg_color = AVATAR_BG_COLOR;
+    SDL_SetRenderDrawColor(renderer, avatar_bg_color.r, avatar_bg_color.g, avatar_bg_color.b, avatar_bg_color.a);
     SDL_RenderFillRect(renderer, &avatar_rect);
     if ((double)avatar->w / AVATAR_WIDTH > (double)avatar->h / AVATAR_HEIGHT)
     {
