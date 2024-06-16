@@ -56,3 +56,7 @@ SDL_test
 test_program
 engine
 .*/
+
+# for rust
+Cargo.lock
+target/
