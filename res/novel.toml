@@ -195,7 +195,7 @@ favorability_add = +10
 
 [dialogue.rule_description]
 character = "X"
-text = "接下來請找出一串 flag{} 的文字"
+text = "接下來請找出一串ｆｌａｇ{}的文字"
 [[dialogue.rule_description.options]]
 text = "好"
 event = "normal_selection"
