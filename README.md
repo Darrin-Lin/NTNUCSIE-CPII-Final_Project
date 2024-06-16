@@ -98,3 +98,8 @@ music = path(string)
 
 ## TOML Example
 [novel.toml](./res/novel.toml)
+
+## Save file
+If you save the game, it will save in `save.json` under the same directory of the game.
+And if it exists, when the game start, it automatically load the save file.
+It will save the current event and the player's inventory.
