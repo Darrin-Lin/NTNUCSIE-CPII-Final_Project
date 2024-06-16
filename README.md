@@ -1,6 +1,18 @@
 # NTNUCSIE-CPII-Final_Project
 My final project of Computer Programming II.
 
+## Environment
+- Ubuntu 22.04
+### Library
+- SDL2
+- SDL2_image
+- SDL2_ttf
+- SDL2_mixer
+
+```shell
+sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
+```
+
 ## How to run
 You can compile with `make` under [src/](./src/).
 Then you can use `engine` to run the game.
