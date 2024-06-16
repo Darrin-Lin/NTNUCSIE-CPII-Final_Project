@@ -87,6 +87,12 @@ int main(int argc, char *argv[])
     {
         strncat(path, "/", 512);
     }
+    // check if path exist
+    if (access(path, F_OK) == -1)
+    {
+        printf("Path not exist.\n");
+        return -1;
+    }
     debug_print("DEBUG MODE ON\n");
     char background_path[1024] = {0};
     char avatar_path[1024] = {0};
@@ -739,6 +745,7 @@ int main(int argc, char *argv[])
                     snprintf(use_tmp_item_img_path, 2048, "%s%s", path, tmp_item_img_path);
                     draw_item_get(renderer, title_font, tmp_item_name, use_tmp_item_img_path);
                 }
+                draw_title(renderer, title_font, "press [space] to continue", TITLE_BOTTOM);
                 // draw
             }
             if (stat == STATUS_SCENE)
